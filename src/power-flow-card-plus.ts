@@ -1,10 +1,9 @@
 /* eslint-disable wc/guard-super-call */
 import { ActionConfig, HomeAssistant, LovelaceCardEditor } from "custom-card-helpers";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
-import { html, LitElement, PropertyValues, TemplateResult } from "lit";
+import { html, svg, LitElement, PropertyValues, TemplateResult } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { batteryElement } from "./components/battery";
-import { flowElement } from "./components/flows";
 import { gridElement } from "./components/grid";
 import { intermediateElement } from "./components/intermediate";
 import { homeElement } from "./components/home";
@@ -18,8 +17,20 @@ import { solarElement } from "./components/solar";
 import { handleAction } from "./ha/panels/lovelace/common/handle-action";
 import { PowerFlowCardPlusConfig } from "./power-flow-card-plus-config";
 import { getBatteryInState, getBatteryOutState, getBatteryStateOfCharge } from "./states/raw/battery";
-import { getGridConsumptionState, getGridProductionState, getGridSecondaryState, getGridMainConsumptionState, getGridMainProductionState, getGridMainSecondaryState } from "./states/raw/grid";
-import { getIntermediateState, getIntermediateFlowFromGridHouseState, getIntermediateFlowFromGridMainState, getIntermediateSecondaryState } from "./states/raw/intermediate";
+import {
+  getGridConsumptionState,
+  getGridProductionState,
+  getGridSecondaryState,
+  getGridMainConsumptionState,
+  getGridMainProductionState,
+  getGridMainSecondaryState,
+} from "./states/raw/grid";
+import {
+  getIntermediateState,
+  getIntermediateFlowFromGridHouseState,
+  getIntermediateFlowFromGridMainState,
+  getIntermediateSecondaryState,
+} from "./states/raw/intermediate";
 import { gridMainElement } from "./components/gridMain";
 import { getHomeSecondaryState } from "./states/raw/home";
 import { getIndividualObject, IndividualObject } from "./states/raw/individual/getIndividualObject";
@@ -34,9 +45,9 @@ import { allDynamicStyles } from "./style/all";
 import { RenderTemplateResult, subscribeRenderTemplate } from "./template/ha-websocket.js";
 import { GridObject, HomeSources, NewDur, TemplatesObj } from "./type";
 import { computeFieldIcon, computeFieldName } from "./utils/computeFieldAttributes";
-import { computeFlowRate } from "./utils/computeFlowRate";
+import { computeFlowRate, computeIndividualFlowRate } from "./utils/computeFlowRate";
+import { computeFlowGeometry } from "./utils/flowGeometry";
 import {
-  checkHasBottomIndividual,
   checkHasRightIndividual,
   getBottomLeftIndividual,
   getBottomRightIndividual,
@@ -48,6 +59,9 @@ import { defaultValues, getDefaultConfig } from "./utils/get-default-config";
 import { registerCustomCard } from "./utils/register-custom-card";
 import { migrateConfig } from "./utils/migrate-config";
 import { coerceNumber } from "./utils/utils";
+import { showLine } from "./utils/showLine";
+import { styleLine } from "./utils/styleLine";
+import { checkShouldShowDots } from "./utils/checkShouldShowDots";
 
 const circleCircumference = 238.76104;
 
@@ -79,7 +93,10 @@ export class PowerFlowCardPlus extends LitElement {
     if ((config.entities as any).individual1 || (config.entities as any).individual2) {
       throw new Error("You are using an outdated configuration. Please update your configuration to the latest version.");
     }
-    if (!config.entities || (!config.entities?.battery?.entity && !(config.entities?.grid as any)?.house?.entity && !config.entities?.solar?.entity)) {
+    if (
+      !config.entities ||
+      (!config.entities?.battery?.entity && !(config.entities?.grid as any)?.house?.entity && !config.entities?.solar?.entity)
+    ) {
       throw new Error("At least one entity for battery, grid or solar must be defined");
     }
     this._config = {
@@ -191,7 +208,9 @@ export class PowerFlowCardPlus extends LitElement {
       icon: computeFieldIcon(this.hass, gridHouseConfig, "mdi:transmission-tower"),
       name: computeFieldName(this.hass, gridHouseConfig, this.hass.localize("ui.panel.lovelace.cards.energy.energy_distribution.grid")),
       mainEntity:
-        typeof gridHouseConfig?.entity === "object" ? gridHouseConfig.entity.consumption || gridHouseConfig.entity.production : gridHouseConfig?.entity,
+        typeof gridHouseConfig?.entity === "object"
+          ? gridHouseConfig.entity.consumption || gridHouseConfig.entity.production
+          : gridHouseConfig?.entity,
       color: {
         fromGrid: gridHouseConfig?.color?.consumption,
         toGrid: gridHouseConfig?.color?.production,
@@ -229,8 +248,7 @@ export class PowerFlowCardPlus extends LitElement {
       powerOutage: {
         has: gridMainConfig?.power_outage?.entity !== undefined,
         isOutage:
-          (gridMainConfig && this.hass.states[gridMainConfig.power_outage?.entity]?.state) ===
-          (gridMainConfig?.power_outage?.state_alert ?? "on"),
+          (gridMainConfig && this.hass.states[gridMainConfig.power_outage?.entity]?.state) === (gridMainConfig?.power_outage?.state_alert ?? "on"),
         icon: gridMainConfig?.power_outage?.icon_alert || "mdi:transmission-tower-off",
         name: gridMainConfig?.power_outage?.label_alert ?? html`Power<br />Outage`,
         entityGenerator: gridMainConfig?.power_outage?.entity_generator,
@@ -238,9 +256,7 @@ export class PowerFlowCardPlus extends LitElement {
       icon: computeFieldIcon(this.hass, gridMainConfig, "mdi:transmission-tower"),
       name: computeFieldName(this.hass, gridMainConfig, "Grid Main"),
       mainEntity:
-        typeof gridMainConfig?.entity === "object"
-          ? gridMainConfig.entity.consumption || gridMainConfig.entity.production
-          : gridMainConfig?.entity,
+        typeof gridMainConfig?.entity === "object" ? gridMainConfig.entity.consumption || gridMainConfig.entity.production : gridMainConfig?.entity,
       color: {
         fromGridMain: gridMainConfig?.color?.consumption,
         toGridMain: gridMainConfig?.color?.production,
@@ -572,11 +588,7 @@ export class PowerFlowCardPlus extends LitElement {
       solarToHome: computeFlowRate(this._config, solar.state.toHome ?? 0, totalLines),
       individual: individualObjs?.map((individual) => computeFlowRate(this._config, individual.state ?? 0, totalIndividualConsumption)) || [],
       nonFossil: computeFlowRate(this._config, nonFossil.state.power ?? 0, totalLines),
-      gridMainToGridHouse: computeFlowRate(
-        this._config,
-        Math.max(gridMain.state.fromGridMain ?? 0, gridMain.state.toGridMain ?? 0),
-        totalLines
-      ),
+      gridMainToGridHouse: computeFlowRate(this._config, Math.max(gridMain.state.fromGridMain ?? 0, gridMain.state.toGridMain ?? 0), totalLines),
       intermediateFromGridHouse: intermediateObjs.map((obj) => computeFlowRate(this._config, obj.flowFromGridHouse ?? 0, totalLines)),
       intermediateFromGridMain: intermediateObjs.map((obj) => computeFlowRate(this._config, obj.flowFromGridMain ?? 0, totalLines)),
     };
@@ -636,7 +648,6 @@ export class PowerFlowCardPlus extends LitElement {
     };
 
     // Styles
-    const isCardWideEnough = this._width > 420;
     allDynamicStyles(this, {
       grid,
       solar,
@@ -648,7 +659,6 @@ export class PowerFlowCardPlus extends LitElement {
       homeSources,
       individual: individualObjs,
       nonFossil,
-      isCardWideEnough,
     });
 
     const sortedIndividualObjects = this._config.sort_individual_devices ? sortIndividualObjects(individualObjs) : individualObjs;
@@ -659,6 +669,20 @@ export class PowerFlowCardPlus extends LitElement {
     const individualFieldRightBottom = getBottomRightIndividual(sortedIndividualObjects);
 
     const hasRightSection = checkHasRightIndividual(individualObjs);
+
+    // Adaptive row width: keep 60px gap between 80px circles across all column counts.
+    // numCols = 1 (nonFossil/grid) + 2 extra if gridMain + 1 (solar/battery) + 1 (home/ind) + 1 if rightSection
+    const geo = computeFlowGeometry(gridMain.has, hasRightSection);
+    this.style.setProperty("--row-max-width", `${geo.rowMaxWidth}px`);
+
+    // Dynamic SVG path coordinates: adapt to actual card width
+    // At max width (rowMaxWidth), gap = 60px, leftReach = -100, rightReach = 180, straightLineLength = 280 (same as old hardcoded values)
+    // At narrower widths, gap shrinks proportionally, so reach and lineLength adapt
+    const actualRowWidth = Math.min(this._width || geo.rowMaxWidth, geo.rowMaxWidth);
+    const gapBetweenCircles = geo.numCols > 1 ? (actualRowWidth - geo.numCols * 80) / (geo.numCols - 1) : 0;
+    const leftReach = -(gapBetweenCircles + 40); // negative: distance from spacer left edge to left circle center
+    const rightReach = 80 + gapBetweenCircles + 40; // distance from spacer left edge to right circle center
+    const straightLineLength = rightReach - leftReach; // total horizontal line length
 
     return html`
       <ha-card
@@ -671,20 +695,29 @@ export class PowerFlowCardPlus extends LitElement {
           id="power-flow-card-cascade"
           style=${this._config.style_card_content ? this._config.style_card_content : ""}
         >
-          ${solar.has || individualObjs?.some((i) => i?.has) || nonFossil.hasPercentage || intermediateObjs[1]?.has
+          ${solar.has || nonFossil.hasPercentage || intermediateObjs[0]?.has || !!individualFieldLeftTop || !!individualFieldRightTop
             ? html`<div class="row">
-                ${intermediateObjs[1]?.has
-                  ? intermediateElement(this, this._config, { intermediateObj: intermediateObjs[1], entities, index: 1 })
-                  : nonFossilElement(this, this._config, { entities, grid, newDur, nonFossil, templatesObj })}
+                <!-- Col A: nonFossil (above gridMain when present, above grid when not) -->
+                ${nonFossilElement(this, this._config, { entities, grid, newDur, nonFossil, templatesObj })}
+                <!-- Col B: intermediate[1] top slot (only when gridMain present) -->
+                ${gridMain.has
+                  ? intermediateObjs[1]?.has
+                    ? intermediateElement(this, this._config, { intermediateObj: intermediateObjs[1], entities, index: 1 })
+                    : html`<div class="spacer"></div>`
+                  : ""}
+                <!-- Col C: spacer above grid column (only when gridMain present) -->
+                ${gridMain.has ? html`<div class="spacer"></div>` : ""}
+                <!-- Col D: solar -->
                 ${solar.has
                   ? solarElement(this, this._config, {
                       entities,
                       solar,
                       templatesObj,
+                      battery,
+                      newDur,
                     })
-                  : individualObjs?.some((i) => i?.has)
-                  ? html`<div class="spacer"></div>`
-                  : ""}
+                  : html`<div class="spacer"></div>`}
+                <!-- Col E: individual[0] top -->
                 ${individualFieldLeftTop
                   ? individualLeftTopElement(this, this._config, {
                       individualObj: individualFieldLeftTop,
@@ -693,6 +726,7 @@ export class PowerFlowCardPlus extends LitElement {
                       templatesObj,
                     })
                   : html`<div class="spacer"></div>`}
+                <!-- Col F: individual[2] top (only if >2 individuals) -->
                 ${hasRightSection
                   ? individualFieldRightTop
                     ? individualRightTopElement(this, this._config, {
@@ -708,17 +742,221 @@ export class PowerFlowCardPlus extends LitElement {
               </div>`
             : html``}
           <div class="row">
+            <!-- Col A: gridMain (when present) OR grid (when no gridMain) -->
             ${gridMain.has
               ? gridMainElement(this, this._config, { entities, gridMain, templatesObj })
+              : grid.has
+              ? gridElement(this, this._config, { entities, grid, templatesObj })
               : html`<div class="spacer"></div>`}
-            ${grid.has
-              ? gridElement(this, this._config, {
-                  entities,
-                  grid,
-                  templatesObj,
-                })
-              : html`<div class="spacer"></div>`}
-            <div class="spacer"></div>
+            <!-- Col B: spacer between gridMain and grid (only when gridMain present) -->
+            ${gridMain.has
+              ? html`<div class="spacer" style="position:relative">
+                  ${grid.has && (showLine(this._config, gridMain.state.fromGridMain ?? 0) || showLine(this._config, gridMain.state.toGridMain ?? 0))
+                    ? html`<svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
+                        <path
+                          d="M${leftReach} 40 h${straightLineLength}"
+                          id="grid-main-to-grid"
+                          class="grid ${styleLine(gridMain.state.fromGridMain || gridMain.state.toGridMain || 0, this._config)}"
+                          vector-effect="non-scaling-stroke"
+                        />
+                        ${checkShouldShowDots(this._config) && gridMain.state.fromGridMain
+                          ? svg`<circle r="1.75" class="grid" vector-effect="non-scaling-stroke">
+                              <animateMotion dur="${newDur.gridMainToGridHouse}s" repeatCount="indefinite" calcMode="linear">
+                                <mpath xlink:href="#grid-main-to-grid" />
+                              </animateMotion>
+                            </circle>`
+                          : ""}
+                        ${checkShouldShowDots(this._config) && gridMain.state.toGridMain
+                          ? svg`<circle r="1.75" class="return" vector-effect="non-scaling-stroke">
+                              <animateMotion dur="${newDur.gridMainToGridHouse}s" repeatCount="indefinite" calcMode="linear"
+                                keyPoints="1;0" keyTimes="0;1">
+                                <mpath xlink:href="#grid-main-to-grid" />
+                              </animateMotion>
+                            </circle>`
+                          : ""}
+                      </svg>`
+                    : ""}
+                  ${intermediateObjs.length > 1 &&
+                  intermediateObjs[1].has &&
+                  grid.has &&
+                  showLine(this._config, intermediateObjs[1].flowFromGridHouse ?? 0)
+                    ? html`<svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
+                        <path
+                          d="M${rightReach} 35 H85 A40,40 0 0,1 45 -5 V-80"
+                          id="grid-house-intermediate-1"
+                          class="intermediate ${styleLine(intermediateObjs[1].flowFromGridHouse || 0, this._config)}"
+                          vector-effect="non-scaling-stroke"
+                        />
+                        ${checkShouldShowDots(this._config) && intermediateObjs[1].flowFromGridHouse
+                          ? svg`<circle r="1.75" class="intermediate" vector-effect="non-scaling-stroke">
+                              <animateMotion dur="${newDur.intermediateFromGridHouse[1]}s" repeatCount="indefinite" calcMode="linear">
+                                <mpath xlink:href="#grid-house-intermediate-1" />
+                              </animateMotion>
+                            </circle>`
+                          : ""}
+                      </svg>`
+                    : ""}
+                  ${intermediateObjs.length > 0 &&
+                  intermediateObjs[0].has &&
+                  grid.has &&
+                  showLine(this._config, intermediateObjs[0].flowFromGridHouse ?? 0)
+                    ? html`<svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
+                        <path
+                          d="M${rightReach} 45 H85 A40,40 0 0,0 45 85 V160"
+                          id="grid-house-intermediate-0"
+                          class="intermediate ${styleLine(intermediateObjs[0].flowFromGridHouse || 0, this._config)}"
+                          vector-effect="non-scaling-stroke"
+                        />
+                        ${checkShouldShowDots(this._config) && intermediateObjs[0].flowFromGridHouse
+                          ? svg`<circle r="1.75" class="intermediate" vector-effect="non-scaling-stroke">
+                              <animateMotion dur="${newDur.intermediateFromGridHouse[0]}s" repeatCount="indefinite" calcMode="linear">
+                                <mpath xlink:href="#grid-house-intermediate-0" />
+                              </animateMotion>
+                            </circle>`
+                          : ""}
+                      </svg>`
+                    : ""}
+                  ${gridMain?.has &&
+                  intermediateObjs.length > 1 &&
+                  intermediateObjs[1].has &&
+                  showLine(this._config, intermediateObjs[1].flowFromGridMain ?? 0)
+                    ? html`<svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
+                        <path
+                          d="M${leftReach - 20} 35 H-5 A40,40 0 0,0 35 -5 V-80"
+                          id="grid-main-intermediate-1"
+                          class="intermediate ${styleLine(intermediateObjs[1].flowFromGridMain || 0, this._config)}"
+                          vector-effect="non-scaling-stroke"
+                        />
+                        ${checkShouldShowDots(this._config) && intermediateObjs[1].flowFromGridMain
+                          ? svg`<circle r="1.75" class="intermediate" vector-effect="non-scaling-stroke">
+                              <animateMotion dur="${newDur.intermediateFromGridMain[1]}s" repeatCount="indefinite" calcMode="linear">
+                                <mpath xlink:href="#grid-main-intermediate-1" />
+                              </animateMotion>
+                            </circle>`
+                          : ""}
+                      </svg>`
+                    : ""}
+                  ${gridMain?.has &&
+                  intermediateObjs.length > 0 &&
+                  intermediateObjs[0].has &&
+                  showLine(this._config, intermediateObjs[0].flowFromGridMain ?? 0)
+                    ? html`<svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
+                        <path
+                          d="M${leftReach - 20} 45 H-5 A40,40 0 0,1 35 85 V160"
+                          id="grid-main-intermediate-0"
+                          class="intermediate ${styleLine(intermediateObjs[0].flowFromGridMain || 0, this._config)}"
+                          vector-effect="non-scaling-stroke"
+                        />
+                        ${checkShouldShowDots(this._config) && intermediateObjs[0].flowFromGridMain
+                          ? svg`<circle r="1.75" class="intermediate" vector-effect="non-scaling-stroke">
+                              <animateMotion dur="${newDur.intermediateFromGridMain[0]}s" repeatCount="indefinite" calcMode="linear">
+                                <mpath xlink:href="#grid-main-intermediate-0" />
+                              </animateMotion>
+                            </circle>`
+                          : ""}
+                      </svg>`
+                    : ""}
+                </div>`
+              : ""}
+            <!-- Col C: grid (only when gridMain present) -->
+            ${gridMain.has ? (grid.has ? gridElement(this, this._config, { entities, grid, templatesObj }) : html`<div class="spacer"></div>`) : ""}
+            <!-- Col D: spacer between grid and home -->
+            <div class="spacer" style="position:relative">
+              ${grid.has && showLine(this._config, grid.state.fromGrid) && !entities.home?.hide
+                ? html`<svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
+                    <path
+                      d="M${leftReach} 40 h${straightLineLength}"
+                      id="grid-to-home"
+                      class="grid ${styleLine(grid.state.toHome || 0, this._config)}"
+                      vector-effect="non-scaling-stroke"
+                    />
+                    ${checkShouldShowDots(this._config) && grid.state.toHome
+                      ? svg`<circle r="1.75" class="grid" vector-effect="non-scaling-stroke">
+                          <animateMotion dur="${newDur.gridToHome}s" repeatCount="indefinite" calcMode="linear">
+                            <mpath xlink:href="#grid-to-home" />
+                          </animateMotion>
+                        </circle>`
+                      : ""}
+                  </svg>`
+                : ""}
+              ${solar.has && showLine(this._config, solar.state.toHome ?? 0) && !entities.home?.hide
+                ? html`<svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
+                    <path
+                      d="M45 -80 V-5 A40,40 0 0,0 85 35 H${rightReach}"
+                      id="solar-to-home"
+                      class="solar ${styleLine(solar.state.toHome || 0, this._config)}"
+                      vector-effect="non-scaling-stroke"
+                    />
+                    ${checkShouldShowDots(this._config) && solar.state.toHome
+                      ? svg`<circle r="1.75" class="solar" vector-effect="non-scaling-stroke">
+                          <animateMotion dur="${newDur.solarToHome}s" repeatCount="indefinite" calcMode="linear">
+                            <mpath xlink:href="#solar-to-home" />
+                          </animateMotion>
+                        </circle>`
+                      : ""}
+                  </svg>`
+                : ""}
+              ${grid.hasReturnToGrid && solar.has && showLine(this._config, solar.state.toGrid ?? 0)
+                ? html`<svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
+                    <path
+                      d="M35 -80 V-5 A40,40 0 0,1 -5 35 H${leftReach - 20}"
+                      id="solar-to-grid"
+                      class="return ${styleLine(solar.state.toGrid || 0, this._config)}"
+                      vector-effect="non-scaling-stroke"
+                    />
+                    ${checkShouldShowDots(this._config) && solar.state.toGrid
+                      ? svg`<circle r="1.75" class="return" vector-effect="non-scaling-stroke">
+                          <animateMotion dur="${newDur.solarToGrid}s" repeatCount="indefinite" calcMode="linear">
+                            <mpath xlink:href="#solar-to-grid" />
+                          </animateMotion>
+                        </circle>`
+                      : ""}
+                  </svg>`
+                : ""}
+              ${battery.has && showLine(this._config, battery.state.toHome ?? 0) && !entities.home?.hide
+                ? html`<svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
+                    <path
+                      d="M45 160 V85 A40,40 0 0,1 85 45 H${rightReach}"
+                      id="battery-to-home"
+                      class="battery-home ${styleLine(battery.state.toHome || 0, this._config)}"
+                      vector-effect="non-scaling-stroke"
+                    />
+                    ${checkShouldShowDots(this._config) && battery.state.toHome
+                      ? svg`<circle r="1.75" class="battery-home" vector-effect="non-scaling-stroke">
+                          <animateMotion dur="${newDur.batteryToHome}s" repeatCount="indefinite" calcMode="linear">
+                            <mpath xlink:href="#battery-to-home" />
+                          </animateMotion>
+                        </circle>`
+                      : ""}
+                  </svg>`
+                : ""}
+              ${grid.has && battery.has && showLine(this._config, Math.max(grid.state.toBattery ?? 0, battery.state.toGrid ?? 0))
+                ? html`<svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
+                    <path
+                      d="M35 160 V85 A40,40 0 0,0 -5 45 H${leftReach - 20}"
+                      id="battery-grid"
+                      class="${styleLine(battery.state.toGrid || grid.state.toBattery || 0, this._config)}"
+                      vector-effect="non-scaling-stroke"
+                    />
+                    ${checkShouldShowDots(this._config) && grid.state.toBattery
+                      ? svg`<circle r="1.75" class="battery-from-grid" vector-effect="non-scaling-stroke">
+                          <animateMotion dur="${newDur.batteryGrid}s" repeatCount="indefinite" calcMode="linear"
+                            keyPoints="1;0" keyTimes="0;1">
+                            <mpath xlink:href="#battery-grid" />
+                          </animateMotion>
+                        </circle>`
+                      : ""}
+                    ${checkShouldShowDots(this._config) && battery.state.toGrid
+                      ? svg`<circle r="1.75" class="battery-to-grid" vector-effect="non-scaling-stroke">
+                          <animateMotion dur="${newDur.batteryGrid}s" repeatCount="indefinite" calcMode="linear">
+                            <mpath xlink:href="#battery-grid" />
+                          </animateMotion>
+                        </circle>`
+                      : ""}
+                  </svg>`
+                : ""}
+            </div>
+            <!-- Col E: home -->
             ${!entities.home?.hide
               ? homeElement(this, this._config, {
                   circleCircumference,
@@ -735,14 +973,83 @@ export class PowerFlowCardPlus extends LitElement {
                   individual: individualObjs,
                 })
               : html`<div class="spacer"></div>`}
-            ${hasRightSection ? html`<div class="spacer"></div>` : ""}
+            <!-- Col F: spacer for right individual column (only if >2 individuals) -->
+            ${hasRightSection
+              ? html`<div class="spacer" style="position:relative">
+                  ${individualObjs.length > 2 &&
+                  individualObjs[2]?.has &&
+                  showLine(this._config, individualObjs[2].state ?? 0) &&
+                  !entities.home?.hide
+                    ? html`<svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
+                        <path
+                          d="M35 -80 V-5 A40,40 0 0,1 -5 35 H${leftReach - 20}"
+                          id="ind-right-top-to-home"
+                          class="individual-top ${styleLine(individualObjs[2].state || 0, this._config)}"
+                          vector-effect="non-scaling-stroke"
+                        />
+                        ${checkShouldShowDots(this._config) &&
+                        individualObjs[2].state &&
+                        individualObjs[2].state >= (individualObjs[2].displayZeroTolerance ?? 0)
+                          ? svg`<circle r="1.75" class="individual-top" vector-effect="non-scaling-stroke">
+                              <animateMotion dur="${computeIndividualFlowRate(
+                                individualObjs[2]?.field?.calculate_flow_rate,
+                                newDur.individual[2] || 1.66
+                              )}s"
+                                repeatCount="indefinite" calcMode="linear"
+                                keyPoints=${individualObjs[2].invertAnimation ? "0;1" : "1;0"}
+                                keyTimes="0;1">
+                                <mpath xlink:href="#ind-right-top-to-home" />
+                              </animateMotion>
+                            </circle>`
+                          : ""}
+                      </svg>`
+                    : ""}
+                  ${individualObjs.length > 3 &&
+                  individualObjs[3]?.has &&
+                  showLine(this._config, individualObjs[3].state ?? 0) &&
+                  !entities.home?.hide
+                    ? html`<svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
+                        <path
+                          d="M35 160 V85 A40,40 0 0,0 -5 45 H${leftReach - 20}"
+                          id="ind-right-bottom-to-home"
+                          class="individual-bottom ${styleLine(individualObjs[3].state || 0, this._config)}"
+                          vector-effect="non-scaling-stroke"
+                        />
+                        ${checkShouldShowDots(this._config) &&
+                        individualObjs[3].state &&
+                        individualObjs[3].state >= (individualObjs[3].displayZeroTolerance ?? 0)
+                          ? svg`<circle r="1.75" class="individual-bottom" vector-effect="non-scaling-stroke">
+                              <animateMotion dur="${computeIndividualFlowRate(
+                                individualObjs[3]?.field?.calculate_flow_rate,
+                                newDur.individual[3] || 1.66
+                              )}s"
+                                repeatCount="indefinite" calcMode="linear"
+                                keyPoints=${individualObjs[3].invertAnimation ? "0;1" : "1;0"}
+                                keyTimes="0;1">
+                                <mpath xlink:href="#ind-right-bottom-to-home" />
+                              </animateMotion>
+                            </circle>`
+                          : ""}
+                      </svg>`
+                    : ""}
+                </div>`
+              : ""}
           </div>
-          ${battery.has || intermediateObjs[0]?.has || checkHasBottomIndividual(individualObjs)
+          ${battery.has || intermediateObjs[1]?.has || !!individualFieldLeftBottom || !!individualFieldRightBottom
             ? html`<div class="row">
-                ${intermediateObjs[0]?.has
-                  ? intermediateElement(this, this._config, { intermediateObj: intermediateObjs[0], entities, index: 0 })
-                  : html`<div class="spacer"></div>`}
-                ${battery.has ? batteryElement(this, this._config, { battery, entities }) : html`<div class="spacer"></div>`}
+                <!-- Col A: spacer at grid/gridMain column (always, to anchor battery under solar) -->
+                <div class="spacer"></div>
+                <!-- Col B: intermediate[0] bottom slot (only when gridMain present) -->
+                ${gridMain.has
+                  ? intermediateObjs[0]?.has
+                    ? intermediateElement(this, this._config, { intermediateObj: intermediateObjs[0], entities, index: 0 })
+                    : html`<div class="spacer"></div>`
+                  : ""}
+                <!-- Col C: spacer below grid column (only when gridMain present) -->
+                ${gridMain.has ? html`<div class="spacer"></div>` : ""}
+                <!-- Col D: battery -->
+                ${battery.has ? batteryElement(this, this._config, { battery, entities, solar, newDur }) : html`<div class="spacer"></div>`}
+                <!-- Col E: individual[1] bottom -->
                 ${individualFieldLeftBottom
                   ? individualLeftBottomElement(this, this._config, {
                       displayState: getIndividualDisplayState(individualFieldLeftBottom),
@@ -751,6 +1058,7 @@ export class PowerFlowCardPlus extends LitElement {
                       templatesObj,
                     })
                   : html`<div class="spacer"></div>`}
+                <!-- Col F: individual[3] bottom (only if >2 individuals) -->
                 ${hasRightSection
                   ? individualFieldRightBottom
                     ? individualRightBottomElement(this, this._config, {
@@ -765,15 +1073,6 @@ export class PowerFlowCardPlus extends LitElement {
                   : ""}
               </div>`
             : html`<div class="spacer"></div>`}
-          ${flowElement(this._config, {
-            battery,
-            grid,
-            gridMain,
-            intermediateObjs,
-            individual: individualObjs,
-            newDur,
-            solar,
-          })}
         </div>
         ${dashboardLinkElement(this._config, this.hass)}
       </ha-card>

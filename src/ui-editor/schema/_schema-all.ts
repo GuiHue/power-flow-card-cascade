@@ -7,6 +7,7 @@ import { nonFossilSchema } from "./fossil_fuel_percentage";
 import { gridSchema } from "./grid";
 import { homeSchema } from "./home";
 import { individualSchema } from "./individual";
+export { intermediateSchema } from "./intermediate";
 import { solarSchema } from "./solar";
 
 const baseLovelaceCardConfig = object({
@@ -46,10 +47,12 @@ export const cardConfigStruct = assign(
     disable_dots: optional(boolean()),
     entities: object({
       battery: optional(any()),
-      grid: optional(object({
-        house: optional(any()),
-        main: optional(any()),
-      })),
+      grid: optional(
+        object({
+          house: optional(any()),
+          main: optional(any()),
+        })
+      ),
       solar: optional(any()),
       home: optional(any()),
       fossil_fuel_percentage: optional(any()),
