@@ -1,7 +1,7 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { getEntityStateObj } from "../states/utils/getEntityStateObj";
 import { BaseConfigEntity } from "../type";
-import { ConfigEntity } from "../power-flow-card-plus-config";
+import { ConfigEntity } from "../power-flow-card-cascade-config";
 
 export const computeFieldIcon = (hass: HomeAssistant, field: ConfigEntity | undefined, fallback: string): string => {
   const f = field as any;

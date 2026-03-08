@@ -1,10 +1,10 @@
 import { HomeAssistant } from "custom-card-helpers";
-import { PowerFlowCardPlusConfig } from "@/power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 import { getGridConsumptionState } from "./grid";
 import { getEntityState } from "@/states/utils/getEntityState";
 import { getSecondaryState } from "./base";
 
-export const getNonFossilHas = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getNonFossilHas = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const nonFossil = config.entities.fossil_fuel_percentage;
   const grid = config.entities.grid;
   const fossilPercentageEntity = nonFossil?.entity;
@@ -20,7 +20,7 @@ export const getNonFossilHas = (hass: HomeAssistant, config: PowerFlowCardPlusCo
   return gridFromGrid * 1 - (getEntityState(hass, fossilPercentageEntity) ?? 0) / 100 > 0;
 };
 
-export const getNonFossilHasPercentage = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getNonFossilHasPercentage = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const nonFossil = config.entities.fossil_fuel_percentage;
   const grid = config.entities.grid;
   const fossilPercentageEntity = nonFossil?.entity;
@@ -38,10 +38,10 @@ export const getNonFossilHasPercentage = (hass: HomeAssistant, config: PowerFlow
   return gridFromGrid * 1 - (getEntityState(hass, fossilPercentageEntity) ?? 0) / 100 > 0;
 };
 
-export const getNonFossilSecondaryState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) =>
+export const getNonFossilSecondaryState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) =>
   getSecondaryState(hass, config, "fossil_fuel_percentage");
 
-export const getNonFossilState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getNonFossilState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const nonFossil = config.entities.fossil_fuel_percentage;
   const fossilPercentageEntity = nonFossil?.entity;
   const gridFromGrid = getGridConsumptionState(hass, config);

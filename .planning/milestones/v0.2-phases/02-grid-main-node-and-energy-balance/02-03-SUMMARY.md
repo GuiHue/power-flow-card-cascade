@@ -33,7 +33,7 @@ tech-stack:
 key-files:
   created: []
   modified:
-    - src/power-flow-card-plus.ts
+    - src/power-flow-card-cascade.ts
     - src/components/grid.ts
 
 key-decisions:
@@ -83,7 +83,7 @@ Each task was committed atomically:
 **Plan metadata:** (docs commit — see below)
 
 ## Files Created/Modified
-- `src/power-flow-card-plus.ts` - grid object uses gridHouseConfig; gridMain object added; newDur.gridMainToGridHouse computed; middle row + flowElement updated
+- `src/power-flow-card-cascade.ts` - grid object uses gridHouseConfig; gridMain object added; newDur.gridMainToGridHouse computed; middle row + flowElement updated
 - `src/components/grid.ts` - gridConfig reads from (entities.grid as any)?.house sub-key
 
 ## Decisions Made

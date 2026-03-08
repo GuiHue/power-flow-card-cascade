@@ -23,7 +23,7 @@ key-files:
   modified:
     - src/utils/flowGeometry.ts
     - src/style.ts
-    - src/power-flow-card-plus.ts
+    - src/power-flow-card-cascade.ts
 
 key-decisions:
   - "Committed prior-phase uncommitted inline SVG changes together with formatting in Task 1 to establish clean baseline"
@@ -69,7 +69,7 @@ Each task was committed atomically:
 ## Files Created/Modified
 - `src/utils/flowGeometry.ts` - Removed flowStyle, flowStyleVertical, flowPixelWidth; kept FlowGeometry + computeFlowGeometry
 - `src/style.ts` - Removed .lines CSS block (6 rules)
-- `src/power-flow-card-plus.ts` - Removed flowElement import/call, isCardWideEnough variable
+- `src/power-flow-card-cascade.ts` - Removed flowElement import/call, isCardWideEnough variable
 - `src/components/flows/` - Entire directory deleted (10 files: index.ts + 9 flow components)
 
 ## Decisions Made

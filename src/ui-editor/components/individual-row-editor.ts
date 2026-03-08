@@ -8,7 +8,7 @@ import { EditSubElementEvent, EntityConfig, LovelaceRowConfig } from "../types/e
 import { fireEvent } from "../utils/fire_event";
 import { sortableStyles } from "../utils/sortable_styles";
 import { loadSortable, SortableInstance } from "../utils/sortable.ondemand";
-import { PowerFlowCardPlusConfig } from "@/power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 import { loadHaForm } from "@/ui-editor/utils/loadHAForm";
 import { individualSchema } from "@/ui-editor/schema/individual";
 import localize from "@/localize/localize";
@@ -30,7 +30,7 @@ declare global {
 export class IndividualRowEditor extends LitElement {
   @property({ attribute: false }) protected hass?: HomeAssistant;
 
-  @property({ attribute: false }) protected config?: PowerFlowCardPlusConfig;
+  @property({ attribute: false }) protected config?: PowerFlowCardCascadeConfig;
 
   @property({ attribute: false }) protected entities?: LovelaceRowConfig[];
 

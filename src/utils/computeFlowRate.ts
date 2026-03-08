@@ -1,11 +1,11 @@
-import { PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "../power-flow-card-cascade-config";
 
 const newFlowRateMapRange = (value: number, minOut: number, maxOut: number, minIn: number, maxIn: number): number => {
   if (value > maxIn) return maxOut;
   return ((value - minIn) * (maxOut - minOut)) / (maxIn - minIn) + minOut;
 };
 
-const newFlowRate = (config: PowerFlowCardPlusConfig, value: number): number => {
+const newFlowRate = (config: PowerFlowCardCascadeConfig, value: number): number => {
   const maxPower = config.max_expected_power;
   const minPower = config.min_expected_power;
   const maxRate = config.max_flow_rate;
@@ -13,13 +13,13 @@ const newFlowRate = (config: PowerFlowCardPlusConfig, value: number): number => 
   return newFlowRateMapRange(value, maxRate, minRate, minPower, maxPower);
 };
 
-const oldFlowRate = (config: PowerFlowCardPlusConfig, value: number, total: number): number => {
+const oldFlowRate = (config: PowerFlowCardCascadeConfig, value: number, total: number): number => {
   const min = config?.min_flow_rate!;
   const max = config?.max_flow_rate!;
   return max - (value / (total > 0 ? total : value)) * (max - min);
 };
 
-export const computeFlowRate = (config: PowerFlowCardPlusConfig, value: number, total: number): number => {
+export const computeFlowRate = (config: PowerFlowCardCascadeConfig, value: number, total: number): number => {
   const isNewFlowRateModel = config.use_new_flow_rate_model ?? true;
   if (isNewFlowRateModel) return newFlowRate(config, value);
   return oldFlowRate(config, value, total);

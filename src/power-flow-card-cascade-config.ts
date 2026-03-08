@@ -29,7 +29,7 @@ interface mainConfigOptions {
   sort_individual_devices?: boolean;
 }
 
-export interface PowerFlowCardPlusConfig extends LovelaceCardConfig, mainConfigOptions {
+export interface PowerFlowCardCascadeConfig extends LovelaceCardConfig, mainConfigOptions {
   entities: ConfigEntities;
 }
 

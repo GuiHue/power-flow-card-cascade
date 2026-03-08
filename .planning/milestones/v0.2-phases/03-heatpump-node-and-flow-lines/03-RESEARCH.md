@@ -72,7 +72,7 @@ None — discussion stayed within phase scope.
 
 ## Summary
 
-Phase 3 adds a heatpump node to the card's bottom row with two curved animated flow lines (from grid_house and from grid_main). The codebase is well-structured with clear precedents for everything needed: battery.ts provides the COP-display template, gridMainToGridHouse.ts provides the flow-line template, and the render() function in power-flow-card-plus.ts shows exactly how to construct objects and slot elements into the bottom row.
+Phase 3 adds a heatpump node to the card's bottom row with two curved animated flow lines (from grid_house and from grid_main). The codebase is well-structured with clear precedents for everything needed: battery.ts provides the COP-display template, gridMainToGridHouse.ts provides the flow-line template, and the render() function in power-flow-card-cascade.ts shows exactly how to construct objects and slot elements into the bottom row.
 
 The key implementation work is: (1) a new `heatpumpElement` component mirroring battery.ts with a COP span instead of state-of-charge, (2) two new flow files (`gridHouseToHeatpump.ts` and `gridMainToHeatpump.ts`) using curved SVG paths, (3) a state resolver at `src/states/raw/heatpump.ts` following the battery/grid pattern, (4) two new `NewDur` fields in `src/type.ts`, and (5) wiring everything into render() and flowElement(). BAL-02 requires zero code change — the home balance formula is untouched because the user's home entity already excludes heatpump consumption.
 
@@ -125,7 +125,7 @@ src/
 ├── states/raw/
 │   └── heatpump.ts               # NEW: state resolvers for heatpump power, COP, flow sensors
 ├── type.ts                       # MODIFY: add heatpumpFromGridHouse + heatpumpFromGridMain to NewDur
-└── power-flow-card-plus.ts       # MODIFY: construct heatpump object, slot into bottom row, compute NewDur entries
+└── power-flow-card-cascade.ts       # MODIFY: construct heatpump object, slot into bottom row, compute NewDur entries
 ```
 
 ### Pattern 1: Node Element Component (follows battery.ts)
@@ -136,8 +136,8 @@ src/
 ```typescript
 // Source: src/components/battery.ts (verified in codebase)
 export const heatpumpElement = (
-  main: PowerFlowCardPlus,
-  config: PowerFlowCardPlusConfig,
+  main: PowerFlowCardCascade,
+  config: PowerFlowCardCascadeConfig,
   { heatpump, entities }: { heatpump: any; entities: ConfigEntities }
 ) => {
   return html`<div class="circle-container heatpump">
@@ -198,27 +198,27 @@ export const heatpumpElement = (
 ```typescript
 // Source: src/states/raw/battery.ts (verified in codebase)
 // For heatpump power (watts):
-export const getHeatpumpState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig): number => {
+export const getHeatpumpState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig): number => {
   const entity = config.entities.heatpump?.entity;
   if (!entity) return 0;
   return getEntityStateWatts(hass, entity);
 };
 
 // For COP (dimensionless ratio — use getEntityState, not getEntityStateWatts):
-export const getHeatpumpCopState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig): number | null => {
+export const getHeatpumpCopState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig): number | null => {
   const entity = config.entities.heatpump?.cop;
   if (!entity) return null;
   return getEntityState(hass, entity); // returns null when unavailable
 };
 
 // For flow sensors (watts, same as power):
-export const getHeatpumpFlowFromGridHouseState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig): number => {
+export const getHeatpumpFlowFromGridHouseState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig): number => {
   const entity = config.entities.heatpump?.flow_from_grid_house;
   if (!entity) return 0;
   return getEntityStateWatts(hass, entity);
 };
 
-export const getHeatpumpFlowFromGridMainState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig): number => {
+export const getHeatpumpFlowFromGridMainState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig): number => {
   const entity = config.entities.heatpump?.flow_from_grid_main;
   if (!entity) return 0;
   return getEntityStateWatts(hass, entity);
@@ -231,7 +231,7 @@ export const getHeatpumpFlowFromGridMainState = (hass: HomeAssistant, config: Po
 **When to use:** The bottom row div wraps in a conditional — the condition must include `heatpump.has`.
 **Example:**
 ```typescript
-// Source: src/power-flow-card-plus.ts lines 714-737 (verified in codebase)
+// Source: src/power-flow-card-cascade.ts lines 714-737 (verified in codebase)
 // Current condition:
 ${battery.has || checkHasBottomIndividual(individualObjs)
   ? html`<div class="row">
@@ -426,7 +426,7 @@ export const flowGridHouseToHeatpump = (config, { battery, grid, heatpump, indiv
 ### NewDur Computation in render()
 
 ```typescript
-// Source: src/power-flow-card-plus.ts lines 542-556 (verified)
+// Source: src/power-flow-card-cascade.ts lines 542-556 (verified)
 // Existing pattern:
 gridMainToGridHouse: computeFlowRate(
   this._config,
@@ -442,7 +442,7 @@ heatpumpFromGridMain: computeFlowRate(this._config, heatpump.flowFromGridMain ??
 ### Heatpump Object Construction in render()
 
 ```typescript
-// Source pattern: src/power-flow-card-plus.ts gridMain object construction (verified, lines 217-264)
+// Source pattern: src/power-flow-card-cascade.ts gridMain object construction (verified, lines 217-264)
 const heatpumpConfig = entities.heatpump;
 const heatpump = {
   entity: heatpumpConfig?.entity,
@@ -479,7 +479,7 @@ ${heatpump ? flowGridMainToHeatpump(config, { battery, grid, heatpump, individua
 |--------------|------------------|--------------|--------|
 | `isEntityInverted(config, "grid")` | Read `invert_state` directly from sub-config | Phase 2 (02-01) | Phase 3 must NOT use the removed helper; read from `heatpumpConfig?.invert_state` if needed |
 | Flat `entities.grid.entity` | Nested `entities.grid.house.entity` | Phase 1 | All grid access must use `.house` sub-key |
-| `power-flow-card-plus` component name | `power-flow-card-cascade` | Pre-project | The custom element is registered as `power-flow-card-cascade`; logging says "Power Flow Card Cascade" |
+| `power-flow-card-cascade` component name | `power-flow-card-cascade` | Pre-project | The custom element is registered as `power-flow-card-cascade`; logging says "Power Flow Card Cascade" |
 
 **Confirmed working (Phase 2 complete):**
 - `gridMain` object is constructed in render() and passed to `flowElement` — proven pattern for Phase 3
@@ -520,8 +520,8 @@ All findings are from direct source code inspection of the project repository.
 - `src/components/flows/gridMainToGridHouse.ts` — Flow file structure, flat-line vs curved distinction
 - `src/components/flows/index.ts` — Flows interface, flowElement composition pattern, optional field handling
 - `src/type.ts` — NewDur type definition
-- `src/power-flow-card-plus-config.ts` — HeatpumpEntity interface (all four fields confirmed)
-- `src/power-flow-card-plus.ts` — render() bottom row, object construction patterns, NewDur computation
+- `src/power-flow-card-cascade-config.ts` — HeatpumpEntity interface (all four fields confirmed)
+- `src/power-flow-card-cascade.ts` — render() bottom row, object construction patterns, NewDur computation
 - `src/states/raw/grid.ts` — State resolver pattern (getEntityStateWatts vs getEntityState distinction)
 - `src/states/raw/battery.ts` — getBatteryStateOfCharge using getEntityState (null on unavailable)
 - `src/states/utils/getEntityState.ts` — Returns null when entity unavailable

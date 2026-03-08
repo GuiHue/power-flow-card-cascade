@@ -30,16 +30,16 @@ key-files:
   modified:
     - src/type.ts
     - src/states/raw/grid.ts
-    - src/power-flow-card-plus.ts
+    - src/power-flow-card-cascade.ts
 
 key-decisions:
   - "isEntityInverted removed from grid.ts entirely — confirmed always returns undefined for field='grid' since GridEntities has no top-level invert_state"
-  - "gridMainToGridHouse initialized to 0 in newDur placeholder in power-flow-card-plus.ts — Plan 02-03 will assign the real computed value"
+  - "gridMainToGridHouse initialized to 0 in newDur placeholder in power-flow-card-cascade.ts — Plan 02-03 will assign the real computed value"
   - "All three grid_main resolvers (consumption, production, secondary) mirror the grid_house resolver pattern for consistency"
 
 patterns-established:
   - "State resolver pattern: read sub-config object once, check entity, check invert_state directly on sub-config"
-  - "New required NewDur fields must have a 0 placeholder in power-flow-card-plus.ts until the consuming plan wires up the real value"
+  - "New required NewDur fields must have a 0 placeholder in power-flow-card-cascade.ts until the consuming plan wires up the real value"
 
 requirements-completed: [GRID-02, GRID-04, GRID-05, BAL-01]
 
@@ -76,11 +76,11 @@ Each task was committed atomically:
 ## Files Created/Modified
 - `src/type.ts` - Added `gridMainToGridHouse: number` to `NewDur` type
 - `src/states/raw/grid.ts` - Added three grid_main resolvers, fixed invert_state bug, removed isEntityInverted import
-- `src/power-flow-card-plus.ts` - Added `gridMainToGridHouse: 0` placeholder to `newDur` object literal (required to satisfy TypeScript after NewDur type extension)
+- `src/power-flow-card-cascade.ts` - Added `gridMainToGridHouse: 0` placeholder to `newDur` object literal (required to satisfy TypeScript after NewDur type extension)
 
 ## Decisions Made
 - `isEntityInverted` removed from `grid.ts`: confirmed to always return `undefined` for `field="grid"` because `config.entities.grid` is `GridEntities` (no top-level `invert_state`). Direct read is correct.
-- `gridMainToGridHouse: 0` placeholder added in `power-flow-card-plus.ts`: adding the field to `NewDur` caused a TS2741 error at the existing `newDur` literal. Plan 02-03 will replace the placeholder with the real computed value.
+- `gridMainToGridHouse: 0` placeholder added in `power-flow-card-cascade.ts`: adding the field to `NewDur` caused a TS2741 error at the existing `newDur` literal. Plan 02-03 will replace the placeholder with the real computed value.
 - All three grid_main resolvers mirror the grid_house resolver pattern 1:1 for consistency and predictability.
 
 ## Deviations from Plan
@@ -89,9 +89,9 @@ Each task was committed atomically:
 
 **1. [Rule 3 - Blocking] Fixed TS2741 missing required property in newDur literal**
 - **Found during:** Task 2 (Add grid_main state resolvers)
-- **Issue:** After adding `gridMainToGridHouse: number` to `NewDur` in Task 1, `pnpm typecheck` reported `TS2741: Property 'gridMainToGridHouse' is missing in type...` at line 493 of `power-flow-card-plus.ts`
-- **Fix:** Added `gridMainToGridHouse: 0` placeholder to the `newDur` object literal in `power-flow-card-plus.ts`; Plan 02-03 will assign the real computed value
-- **Files modified:** `src/power-flow-card-plus.ts`
+- **Issue:** After adding `gridMainToGridHouse: number` to `NewDur` in Task 1, `pnpm typecheck` reported `TS2741: Property 'gridMainToGridHouse' is missing in type...` at line 493 of `power-flow-card-cascade.ts`
+- **Fix:** Added `gridMainToGridHouse: 0` placeholder to the `newDur` object literal in `power-flow-card-cascade.ts`; Plan 02-03 will assign the real computed value
+- **Files modified:** `src/power-flow-card-cascade.ts`
 - **Verification:** `pnpm typecheck` exits 0; `pnpm test` exits 0
 - **Committed in:** `e91fb44` (Task 2 commit)
 

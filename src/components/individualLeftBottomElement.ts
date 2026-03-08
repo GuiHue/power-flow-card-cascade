@@ -1,6 +1,6 @@
 import { html, svg } from "lit";
-import { PowerFlowCardPlus } from "../power-flow-card-plus";
-import { PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
+import { PowerFlowCardCascade } from "../power-flow-card-cascade";
+import { PowerFlowCardCascadeConfig } from "../power-flow-card-cascade-config";
 import { IndividualObject } from "../states/raw/individual/getIndividualObject";
 import { NewDur, TemplatesObj } from "../type";
 import { checkShouldShowDots } from "../utils/checkShouldShowDots";
@@ -17,8 +17,8 @@ interface IndividualBottom {
 }
 
 export const individualLeftBottomElement = (
-  main: PowerFlowCardPlus,
-  config: PowerFlowCardPlusConfig,
+  main: PowerFlowCardCascade,
+  config: PowerFlowCardCascadeConfig,
   { individualObj, templatesObj, displayState, newDur }: IndividualBottom
 ) => {
   if (!individualObj) return html`<div class="spacer"></div>`;

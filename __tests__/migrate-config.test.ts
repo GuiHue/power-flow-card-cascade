@@ -55,7 +55,7 @@ describe("migrateConfig", () => {
     const flat = { entities: { grid: { entity: "sensor.grid" } } };
     migrateConfig(flat);
     expect(warnSpy).toHaveBeenCalledTimes(1);
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("[power-flow-card-plus]"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("[power-flow-card-cascade]"));
   });
 
   test("does NOT call console.warn for already-nested config", () => {

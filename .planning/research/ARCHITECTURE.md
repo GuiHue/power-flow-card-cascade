@@ -53,7 +53,7 @@ All flow lines share the **same overlay model**: each flow is a `<div class="lin
 
 | Component | File | Responsibility |
 |-----------|------|----------------|
-| `PowerFlowCardPlus` | `src/power-flow-card-plus.ts` | Main card class. Computes all energy balance state, builds object models (`grid`, `solar`, `battery`, `home`, `nonFossil`, `individualObjs`), renders 3-row layout, computes flow durations. |
+| `PowerFlowCardCascade` | `src/power-flow-card-cascade.ts` | Main card class. Computes all energy balance state, builds object models (`grid`, `solar`, `battery`, `home`, `nonFossil`, `individualObjs`), renders 3-row layout, computes flow durations. |
 | `gridElement` | `src/components/grid.ts` | Renders grid circle with icon, consumption/return values, power outage display, secondary info. |
 | `solarElement` | `src/components/solar.ts` | Renders solar circle with icon and total production value. |
 | `batteryElement` | `src/components/battery.ts` | Renders battery circle with SoC, charge/discharge values. |
@@ -69,7 +69,7 @@ All flow lines share the **same overlay model**: each flow is a `<div class="lin
 | `allDynamicStyles` | `src/style/all.ts` | Sets CSS custom properties for colors, line dimensions at runtime. |
 | `styles` | `src/style.ts` | Static CSS for circle sizing, line positioning, colors, animations. |
 | `GridObject` type | `src/type.ts:102-144` | Type definition for grid state: `fromGrid`, `toGrid`, `toBattery`, `toHome`, plus `powerOutage`, `secondary`, `color`, `tap_action`. |
-| `ConfigEntities` | `src/power-flow-card-plus-config.ts:94-101` | Config shape: `battery`, `grid`, `solar`, `home`, `fossil_fuel_percentage`, `individual[]`. |
+| `ConfigEntities` | `src/power-flow-card-cascade-config.ts:94-101` | Config shape: `battery`, `grid`, `solar`, `home`, `fossil_fuel_percentage`, `individual[]`. |
 | Grid state resolution | `src/states/raw/grid.ts` | Delegates to `getFieldOutState`/`getFieldInState` for consumption/production. |
 
 ## Recommended Architecture for Messkonzept 8 Extension
@@ -210,8 +210,8 @@ The data binding changes: `nonFossil.state.power` should be computed from `gridM
 ```typescript
 // src/components/grid.ts
 export const gridElement = (
-  main: PowerFlowCardPlus,
-  config: PowerFlowCardPlusConfig,
+  main: PowerFlowCardCascade,
+  config: PowerFlowCardCascadeConfig,
   { entities, grid, templatesObj }: { entities: ConfigEntities; grid: any; templatesObj: TemplatesObj }
 ) => {
   return html`<div class="circle-container grid">...</div>`;
@@ -317,8 +317,8 @@ New heatpump balance computed separately
 
 | File | Change |
 |------|--------|
-| `src/power-flow-card-plus.ts` | Add `gridMain` and `heatpump` object construction in `render()`. Add Messkonzept 8 conditional layout in template. Add new flow durations to `NewDur`. |
-| `src/power-flow-card-plus-config.ts` | Extend `ConfigEntities.grid` to accept nested `{ house: Grid, main: Grid }` shape. Add `heatpump` to `ConfigEntities`. |
+| `src/power-flow-card-cascade.ts` | Add `gridMain` and `heatpump` object construction in `render()`. Add Messkonzept 8 conditional layout in template. Add new flow durations to `NewDur`. |
+| `src/power-flow-card-cascade-config.ts` | Extend `ConfigEntities.grid` to accept nested `{ house: Grid, main: Grid }` shape. Add `heatpump` to `ConfigEntities`. |
 | `src/type.ts` | Add `GridMainObject`, `HeatpumpObject` types. Extend `NewDur` with new flow durations. |
 | `src/states/raw/grid.ts` | Support reading from `entities.grid.house.entity` and `entities.grid.main.entity` in addition to flat `entities.grid.entity`. |
 | `src/components/flows/index.ts` | Import and render new flow components. |
@@ -372,8 +372,8 @@ Each phase depends on the previous one. Within a phase, items can be done in par
 
 ### Phase 1: Type Foundation + Config Migration (No visual changes)
 
-1. **Extend config types** (`power-flow-card-plus-config.ts`, `type.ts`): Define nested grid config shape (`entities.grid.house` / `entities.grid.main`), `HeatpumpConfig`, `GridMainObject`, `HeatpumpObject`.
-2. **Backward-compatible config migration** (`power-flow-card-plus.ts:setConfig`): Detect flat `entities.grid.entity` and remap to `entities.grid.house`. Log deprecation warning.
+1. **Extend config types** (`power-flow-card-cascade-config.ts`, `type.ts`): Define nested grid config shape (`entities.grid.house` / `entities.grid.main`), `HeatpumpConfig`, `GridMainObject`, `HeatpumpObject`.
+2. **Backward-compatible config migration** (`power-flow-card-cascade.ts:setConfig`): Detect flat `entities.grid.entity` and remap to `entities.grid.house`. Log deprecation warning.
 3. **Extend state resolution** (`states/raw/grid.ts`, new `states/raw/gridMain.ts`, new `states/raw/heatpump.ts`): Read from nested config paths. Grid house state = existing logic. Grid main state = new resolution.
 4. **Tests**: Unit tests for config migration logic and state resolution.
 
@@ -382,7 +382,7 @@ Each phase depends on the previous one. Within a phase, items can be done in par
 ### Phase 2: Grid House Rename + Grid Main Node (First visible changes)
 
 1. **Render grid_main node** (new `src/components/gridMain.ts`): Clone grid.ts, bind to `gridMain` object.
-2. **Modify main render layout** (`power-flow-card-plus.ts`): Conditionally insert `gridMainElement` before `gridElement` in Row 2 when Messkonzept 8 is active.
+2. **Modify main render layout** (`power-flow-card-cascade.ts`): Conditionally insert `gridMainElement` before `gridElement` in Row 2 when Messkonzept 8 is active.
 3. **Add grid_main<->grid_house flow line** (new `src/components/flows/gridMainToGridHouse.ts`): Bidirectional horizontal animated line.
 4. **Add CSS for grid_main** (`style.ts`, `style/all.ts`): Circle colors, icon colors, line colors.
 5. **Migrate nonFossil data binding**: When MK8 active, nonFossil uses gridMain.fromGrid.
@@ -441,16 +441,16 @@ Each phase depends on the previous one. Within a phase, items can be done in par
 
 ## Sources
 
-- Direct source code analysis of `power-flow-card-plus` v0.2.6 (all paths under `/home/groot/projects/power-flow-card-plus/src/`)
-- `src/power-flow-card-plus.ts` -- main card class, layout template, energy balance logic
+- Direct source code analysis of `power-flow-card-cascade` v0.2.6 (all paths under `/home/groot/projects/power-flow-card-cascade/src/`)
+- `src/power-flow-card-cascade.ts` -- main card class, layout template, energy balance logic
 - `src/components/flows/*.ts` -- all 6 existing flow line SVG implementations
 - `src/components/grid.ts`, `solar.ts`, `battery.ts`, `home.ts`, `nonFossil.ts` -- node circle components
 - `src/style.ts` -- static CSS with all layout dimensions
 - `src/style/all.ts` -- dynamic CSS property computation
 - `src/type.ts` -- GridObject, NewDur, and related type definitions
-- `src/power-flow-card-plus-config.ts` -- ConfigEntities and related config types
+- `src/power-flow-card-cascade-config.ts` -- ConfigEntities and related config types
 - `src/states/raw/grid.ts` -- grid state resolution
 
 ---
-*Architecture research for: power-flow-card-plus Messkonzept 8 extension*
+*Architecture research for: power-flow-card-cascade Messkonzept 8 extension*
 *Researched: 2026-03-02*

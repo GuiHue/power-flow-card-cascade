@@ -1,6 +1,6 @@
 import { html, svg } from "lit";
-import { PowerFlowCardPlus } from "../power-flow-card-plus";
-import { ConfigEntities, PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
+import { PowerFlowCardCascade } from "../power-flow-card-cascade";
+import { ConfigEntities, PowerFlowCardCascadeConfig } from "../power-flow-card-cascade-config";
 import { displayValue } from "../utils/displayValue";
 import { NewDur } from "../type";
 import { showLine } from "../utils/showLine";
@@ -8,8 +8,8 @@ import { styleLine } from "../utils/styleLine";
 import { checkShouldShowDots } from "../utils/checkShouldShowDots";
 
 export const batteryElement = (
-  main: PowerFlowCardPlus,
-  config: PowerFlowCardPlusConfig,
+  main: PowerFlowCardCascade,
+  config: PowerFlowCardCascadeConfig,
   {
     battery,
     entities,

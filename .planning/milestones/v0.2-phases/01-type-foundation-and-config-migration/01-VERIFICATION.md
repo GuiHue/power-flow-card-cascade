@@ -24,7 +24,7 @@ human_verification: []
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
 | 1 | TypeScript compiles without errors (`pnpm typecheck` passes) | VERIFIED | `pnpm typecheck` exits 0, no output |
-| 2 | `ConfigEntities.grid` is typed as `GridEntities` (house/main), not flat `Grid` | VERIFIED | `src/power-flow-card-plus-config.ts` line 108: `grid?: GridEntities` |
+| 2 | `ConfigEntities.grid` is typed as `GridEntities` (house/main), not flat `Grid` | VERIFIED | `src/power-flow-card-cascade-config.ts` line 108: `grid?: GridEntities` |
 | 3 | `HeatpumpEntity` interface exists with all four optional string fields | VERIFIED | Lines 62-67: `entity?`, `cop?`, `flow_from_grid_house?`, `flow_from_grid_main?` — all optional strings |
 | 4 | `ConfigEntities.heatpump` is typed as optional `HeatpumpEntity` | VERIFIED | Line 113: `heatpump?: HeatpumpEntity` |
 | 5 | Grid state accessors read from `.house?.entity` | VERIFIED | `src/states/raw/grid.ts` lines 13-14: `const gridHouse = (config.entities.grid as any)?.house` |
@@ -34,7 +34,7 @@ human_verification: []
 | 9 | Double migration is reference-safe | VERIFIED | Test 4 in `__tests__/migrate-config.test.ts` passes with `toBe` assertion |
 | 10 | `console.warn` fires on flat config, not on nested config | VERIFIED | Tests 6a/6b confirm spy behavior; actual `console.warn` at line 21 of migrate-config.ts |
 | 11 | `pnpm test` passes with all migrate-config tests green | VERIFIED | 21/21 tests pass (8 migrate-config + 13 i18n) |
-| 12 | Flat YAML config accepted by card `setConfig()` without error (migration runs first) | VERIFIED | `src/power-flow-card-plus.ts` lines 74-75: `migrateConfig(rawConfig)` is first call |
+| 12 | Flat YAML config accepted by card `setConfig()` without error (migration runs first) | VERIFIED | `src/power-flow-card-cascade.ts` lines 74-75: `migrateConfig(rawConfig)` is first call |
 | 13 | Flat YAML config accepted by editor `setConfig()` without error (migration before assert) | VERIFIED | `src/ui-editor/ui-editor.ts` lines 73-76: `migrateConfig(rawConfig)` then `assert(config, cardConfigStruct)` |
 | 14 | `entities.heatpump` is NOT stripped by superstruct validation | VERIFIED | `_schema-all.ts` lines 57-63: heatpump as strict `optional(object({ entity, cop, flow_from_grid_house, flow_from_grid_main }))` |
 | 15 | `entities.grid` validated as strict `object({ house, main })` — not `any()` | VERIFIED | `_schema-all.ts` lines 49-52: `optional(object({ house: optional(any()), main: optional(any()) }))` |
@@ -47,13 +47,13 @@ human_verification: []
 
 | Artifact | Provided By | Status | Details |
 |----------|-------------|--------|---------|
-| `src/power-flow-card-plus-config.ts` | Plan 01-01 | VERIFIED | `GridEntities` (line 57) and `HeatpumpEntity` (line 62) interfaces present; `ConfigEntities.grid?: GridEntities` (line 108); `ConfigEntities.heatpump?: HeatpumpEntity` (line 113) |
+| `src/power-flow-card-cascade-config.ts` | Plan 01-01 | VERIFIED | `GridEntities` (line 57) and `HeatpumpEntity` (line 62) interfaces present; `ConfigEntities.grid?: GridEntities` (line 108); `ConfigEntities.heatpump?: HeatpumpEntity` (line 113) |
 | `src/type.ts` | Plan 01-01 | VERIFIED | `EntityType` line 62 contains `"heatpump"` literal |
 | `src/states/raw/grid.ts` | Plan 01-01 | VERIFIED | Three exported functions all use `(config.entities.grid as any)?.house` pattern; 44 lines, substantive implementation |
 | `src/utils/migrate-config.ts` | Plan 01-02 | VERIFIED | Exports `migrateConfig`; 37 lines; flat detection via `'entity' in grid`; idempotent; fires `console.warn` |
 | `__tests__/migrate-config.test.ts` | Plan 01-02 | VERIFIED | 8 tests; uses `jest.spyOn`; `toBe` for reference equality; all pass |
 | `src/ui-editor/schema/_schema-all.ts` | Plan 01-03 | VERIFIED | `heatpump` strict struct present (lines 57-63); `grid` strict nested object (lines 49-52) |
-| `src/power-flow-card-plus.ts` | Plan 01-03 | VERIFIED | `import { migrateConfig }` at line 46; `setConfig(rawConfig: unknown)` with `migrateConfig(rawConfig)` at line 75 |
+| `src/power-flow-card-cascade.ts` | Plan 01-03 | VERIFIED | `import { migrateConfig }` at line 46; `setConfig(rawConfig: unknown)` with `migrateConfig(rawConfig)` at line 75 |
 | `src/ui-editor/ui-editor.ts` | Plan 01-03 | VERIFIED | `import { migrateConfig }` at line 20; `setConfig(rawConfig: unknown)` with `migrateConfig(rawConfig)` at line 74 before `assert()` at line 75 |
 
 ---
@@ -63,12 +63,12 @@ human_verification: []
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
 | `__tests__/migrate-config.test.ts` | `src/utils/migrate-config.ts` | `import { migrateConfig } from '../src/utils/migrate-config'` | WIRED | Line 3 of test file; import confirmed; 8 tests exercise function |
-| `src/utils/migrate-config.ts` | `src/power-flow-card-plus-config.ts` | `import type { PowerFlowCardPlusConfig }` | WIRED | Line 1 of migrate-config.ts; type-only import; no CJS/ESM conflict |
-| `src/power-flow-card-plus.ts` | `src/utils/migrate-config.ts` | `import { migrateConfig } from './utils/migrate-config'` | WIRED | Line 46; called at setConfig line 75 |
+| `src/utils/migrate-config.ts` | `src/power-flow-card-cascade-config.ts` | `import type { PowerFlowCardCascadeConfig }` | WIRED | Line 1 of migrate-config.ts; type-only import; no CJS/ESM conflict |
+| `src/power-flow-card-cascade.ts` | `src/utils/migrate-config.ts` | `import { migrateConfig } from './utils/migrate-config'` | WIRED | Line 46; called at setConfig line 75 |
 | `src/ui-editor/ui-editor.ts` | `src/utils/migrate-config.ts` | `import { migrateConfig } from '../utils/migrate-config'` | WIRED | Line 20; called at setConfig line 74 |
 | `src/ui-editor/ui-editor.ts` | `src/ui-editor/schema/_schema-all.ts` | `assert(config, cardConfigStruct)` after `migrateConfig` | WIRED | Lines 74-75 in order: migrateConfig first, then assert — ordering correct |
-| `src/states/raw/grid.ts` | `src/power-flow-card-plus-config.ts` | `(config.entities.grid as any)?.house` — reads from nested shape | WIRED | Lines 13, 25, 37; house sub-key pattern consistent across all three accessors |
-| `src/power-flow-card-plus-config.ts` | `src/type.ts` | `ConfigEntities.heatpump` uses `HeatpumpEntity`; `EntityType` adds `"heatpump"` | WIRED | Both interfaces defined in config file; EntityType in type.ts line 62 |
+| `src/states/raw/grid.ts` | `src/power-flow-card-cascade-config.ts` | `(config.entities.grid as any)?.house` — reads from nested shape | WIRED | Lines 13, 25, 37; house sub-key pattern consistent across all three accessors |
+| `src/power-flow-card-cascade-config.ts` | `src/type.ts` | `ConfigEntities.heatpump` uses `HeatpumpEntity`; `EntityType` adds `"heatpump"` | WIRED | Both interfaces defined in config file; EntityType in type.ts line 62 |
 
 ---
 
@@ -78,7 +78,7 @@ human_verification: []
 |-------------|-------------|-------------|--------|----------|
 | CONF-01 | 01-01 | `entities.grid` accepts nested `house:` and `main:` sub-keys (both optional) | SATISFIED | `GridEntities { house?: Grid; main?: Grid }` defined; `ConfigEntities.grid?: GridEntities` |
 | CONF-02 | 01-02 | Flat `entities.grid` silently auto-migrates to `entities.grid.house` at runtime | SATISFIED | `migrateConfig` detects `'entity' in grid` and wraps under `{ house: originalGrid }` |
-| CONF-03 | 01-02 | Deprecation warning logged to console when flat grid config is detected | SATISFIED | `console.warn("[power-flow-card-plus] entities.grid has been migrated...")` fires before returning migrated config; confirmed by test |
+| CONF-03 | 01-02 | Deprecation warning logged to console when flat grid config is detected | SATISFIED | `console.warn("[power-flow-card-cascade] entities.grid has been migrated...")` fires before returning migrated config; confirmed by test |
 | CONF-04 | 01-01 | `entities.heatpump` added with entity, COP entity, flow_from_grid_house entity, flow_from_grid_main entity | SATISFIED | `HeatpumpEntity` interface with all four optional string fields; `ConfigEntities.heatpump?: HeatpumpEntity` |
 | CONF-05 | 01-03 | `CardConfigStruct` updated to validate new nested config shape; migration runs before validation in `setConfig()` | SATISFIED | Strict `grid: optional(object({ house, main }))` and `heatpump` struct in `cardConfigStruct`; `migrateConfig` called before `assert()` in both setConfig implementations |
 
@@ -93,7 +93,7 @@ No orphaned requirements — REQUIREMENTS.md traceability table maps only CONF-0
 | File | Line | Pattern | Severity | Impact |
 |------|------|---------|----------|--------|
 | `src/states/raw/grid.ts` | 13, 25, 37 | `(config.entities.grid as any)` cast | Info | Intentional Phase 1 pattern; documented in CONTEXT.md; Phase 2 will resolve sub-keys properly |
-| `src/power-flow-card-plus.ts` | 79 | `(config.entities?.grid as any)?.house?.entity` | Info | Intentional Phase 1 cast at entity guard; correct for nested shape |
+| `src/power-flow-card-cascade.ts` | 79 | `(config.entities?.grid as any)?.house?.entity` | Info | Intentional Phase 1 cast at entity guard; correct for nested shape |
 
 **No blockers. No warnings.** The `as any` casts are the explicitly approved Phase 1 pattern per CONTEXT.md locked decisions, not anti-patterns.
 

@@ -92,10 +92,10 @@ git commit -m "refactor: update NewDur — replace heatpump with intermediate[] 
 
 ---
 
-## Task 2: Update `src/power-flow-card-plus-config.ts`
+## Task 2: Update `src/power-flow-card-cascade-config.ts`
 
 **Files:**
-- Modify: `src/power-flow-card-plus-config.ts`
+- Modify: `src/power-flow-card-cascade-config.ts`
 
 **Step 1: Replace `HeatpumpEntity` with `IntermediateEntity`, update `ConfigEntities`**
 
@@ -133,7 +133,7 @@ interface mainConfigOptions {
   sort_individual_devices?: boolean;
 }
 
-export interface PowerFlowCardPlusConfig extends LovelaceCardConfig, mainConfigOptions {
+export interface PowerFlowCardCascadeConfig extends LovelaceCardConfig, mainConfigOptions {
   entities: ConfigEntities;
 }
 
@@ -237,7 +237,7 @@ Expected: TS errors in files still importing heatpump types. Fine — still in p
 **Step 3: Commit**
 
 ```bash
-git add src/power-flow-card-plus-config.ts
+git add src/power-flow-card-cascade-config.ts
 git commit -m "refactor: replace HeatpumpEntity with IntermediateEntity in config types"
 ```
 
@@ -287,7 +287,7 @@ git commit -m "test: remove heatpump migration test (hard break — no migration
 
 ```ts
 import { HomeAssistant } from "custom-card-helpers";
-import { IntermediateEntity } from "@/power-flow-card-plus-config";
+import { IntermediateEntity } from "@/power-flow-card-cascade-config";
 import { getEntityState } from "../utils/getEntityState";
 import { getEntityStateWatts } from "../utils/getEntityStateWatts";
 
@@ -342,13 +342,13 @@ The intermediate bubble is similar to heatpump but:
 
 ```ts
 import { html } from "lit";
-import { PowerFlowCardPlus } from "../power-flow-card-plus";
-import { ConfigEntities, PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
+import { PowerFlowCardCascade } from "../power-flow-card-cascade";
+import { ConfigEntities, PowerFlowCardCascadeConfig } from "../power-flow-card-cascade-config";
 import { displayValue } from "../utils/displayValue";
 
 export const intermediateElement = (
-  main: PowerFlowCardPlus,
-  config: PowerFlowCardPlusConfig,
+  main: PowerFlowCardCascade,
+  config: PowerFlowCardCascadeConfig,
   {
     intermediateObj,
     entities,
@@ -461,7 +461,7 @@ SVG path notes (approximate — needs visual tuning in HA):
 
 ```ts
 import { classMap } from "lit/directives/class-map.js";
-import { PowerFlowCardPlusConfig } from "@/power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 import { showLine } from "@/utils/showLine";
 import { html, svg } from "lit";
 import { styleLine } from "@/utils/styleLine";
@@ -473,7 +473,7 @@ type FlowsWithIntermediate = Flows & { intermediateObjs: any[] };
 
 // index 0 = intermediate[0] (bottom slot), index 1 = intermediate[1] (top slot)
 export const flowGridHouseToIntermediate = (
-  config: PowerFlowCardPlusConfig,
+  config: PowerFlowCardCascadeConfig,
   { battery, grid, intermediateObjs, individual, newDur }: FlowsWithIntermediate,
   index: number
 ) => {
@@ -550,7 +550,7 @@ git commit -m "refactor: add gridHouseToIntermediate flow, delete gridHouseToHea
 
 ```ts
 import { classMap } from "lit/directives/class-map.js";
-import { PowerFlowCardPlusConfig } from "@/power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 import { showLine } from "@/utils/showLine";
 import { html, svg } from "lit";
 import { styleLine } from "@/utils/styleLine";
@@ -562,7 +562,7 @@ type FlowsWithIntermediate = Flows & { intermediateObjs: any[]; gridMain?: any }
 
 // index 0 = intermediate[0] (bottom slot), index 1 = intermediate[1] (top slot)
 export const flowGridMainToIntermediate = (
-  config: PowerFlowCardPlusConfig,
+  config: PowerFlowCardCascadeConfig,
   { battery, gridMain, intermediateObjs, individual, newDur }: FlowsWithIntermediate,
   index: number
 ) => {
@@ -640,7 +640,7 @@ git commit -m "refactor: add gridMainToIntermediate flow, delete gridMainToHeatp
 ```ts
 import { html } from "lit";
 import { NewDur } from "@/type";
-import { PowerFlowCardPlusConfig } from "@/power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 import { IndividualObject } from "@/states/raw/individual/getIndividualObject";
 import { flowSolarToHome } from "./solarToHome";
 import { flowSolarToGrid } from "./solarToGrid";
@@ -663,7 +663,7 @@ export interface Flows {
 }
 
 export const flowElement = (
-  config: PowerFlowCardPlusConfig,
+  config: PowerFlowCardCascadeConfig,
   { battery, grid, gridMain, intermediateObjs = [], individual, solar, newDur }: Flows
 ) => {
   return html`
@@ -688,7 +688,7 @@ export const flowElement = (
 pnpm build 2>&1 | head -40
 ```
 
-Expected: errors only in `power-flow-card-plus.ts` now.
+Expected: errors only in `power-flow-card-cascade.ts` now.
 
 **Step 3: Commit**
 
@@ -794,10 +794,10 @@ git commit -m "style: replace heatpump CSS with intermediate, increase row max-w
 
 ---
 
-## Task 10: Rewrite `src/power-flow-card-plus.ts`
+## Task 10: Rewrite `src/power-flow-card-cascade.ts`
 
 **Files:**
-- Modify: `src/power-flow-card-plus.ts`
+- Modify: `src/power-flow-card-cascade.ts`
 
 This is the largest task. Make changes section by section.
 
@@ -1056,7 +1056,7 @@ Expected: all 6 tests pass.
 **Step 8: Commit**
 
 ```bash
-git add src/power-flow-card-plus.ts
+git add src/power-flow-card-cascade.ts
 git commit -m "feat: rewrite render() for adaptive 4-6 col layout with intermediate[] entities"
 ```
 

@@ -103,7 +103,7 @@ src/ui-editor/
 **Example:**
 ```typescript
 // src/ui-editor/types/config-page.ts
-import { ConfigEntities } from "@/power-flow-card-plus-config";
+import { ConfigEntities } from "@/power-flow-card-cascade-config";
 
 export type ConfigPage = keyof ConfigEntities | "grid_house" | "grid_main" | "advanced" | null;
 ```
@@ -480,7 +480,7 @@ ${this._isFlatGridConfig() ? html`
 - Direct source code analysis of `src/ui-editor/components/individual-devices-editor.ts` -- template for intermediate array editor
 - Direct source code analysis of `src/ui-editor/components/individual-row-editor.ts` -- template for intermediate per-item editor
 - Direct source code analysis of `src/utils/migrate-config.ts` -- flat detection logic reusable for migration banner
-- Direct source code analysis of `src/power-flow-card-plus-config.ts` -- ConfigEntities type with GridEntities and IntermediateEntity
+- Direct source code analysis of `src/power-flow-card-cascade-config.ts` -- ConfigEntities type with GridEntities and IntermediateEntity
 
 ### Secondary (MEDIUM confidence)
 - `ha-alert` component availability in editor context -- based on HA frontend codebase knowledge, standard component but not verified in this specific card's editor loading

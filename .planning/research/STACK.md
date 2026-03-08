@@ -2,7 +2,7 @@
 
 **Domain:** Home Assistant Lovelace custom card extension (Lit/TypeScript)
 **Researched:** 2026-03-02
-**Confidence:** HIGH (based on full codebase analysis of power-flow-card-plus v0.2.6)
+**Confidence:** HIGH (based on full codebase analysis of power-flow-card-cascade v0.2.6)
 
 ## Existing Stack (Already In Use - Do Not Change)
 
@@ -26,8 +26,8 @@ These are the existing technologies in the project. They are not recommendations
 ## Patterns to Follow (Codebase-Specific)
 
 ### Pattern 1: Node State Object Construction
-**Confidence:** HIGH (observed in every node in `power-flow-card-plus.ts`)
-**What:** Each node (grid, solar, battery, home, nonFossil) is constructed as a plain object literal inside `render()` of the main card (lines 164-322 of `power-flow-card-plus.ts`). The object has a fixed shape with `has`, `state`, `icon`, `name`, `color`, `secondary`, `tap_action` etc.
+**Confidence:** HIGH (observed in every node in `power-flow-card-cascade.ts`)
+**What:** Each node (grid, solar, battery, home, nonFossil) is constructed as a plain object literal inside `render()` of the main card (lines 164-322 of `power-flow-card-cascade.ts`). The object has a fixed shape with `has`, `state`, `icon`, `name`, `color`, `secondary`, `tap_action` etc.
 **Why it matters for Messkonzept 8:** The new `grid_house`, `grid_main`, and `heatpump` nodes must each be constructed as similar plain objects within `render()`. Do NOT create new classes or state management abstractions -- follow the existing pattern of inline object literals with state getter functions.
 
 ```typescript
@@ -58,8 +58,8 @@ const grid: GridObject = {
 ```typescript
 // Pattern from src/components/grid.ts:
 export const gridElement = (
-  main: PowerFlowCardPlus,
-  config: PowerFlowCardPlusConfig,
+  main: PowerFlowCardCascade,
+  config: PowerFlowCardCascadeConfig,
   { entities, grid, templatesObj }: { entities: ConfigEntities; grid: any; templatesObj: TemplatesObj }
 ) => {
   return html`<div class="circle-container grid">...</div>`;
@@ -147,7 +147,7 @@ The grid position in middle row must split into `grid_main` and `grid_house`, or
 ### Flat `entities.grid` -> Nested `entities.grid.house` Migration
 **Confidence:** HIGH (concrete pattern based on codebase analysis)
 
-**Where to implement:** In `setConfig()` of `power-flow-card-plus.ts` (line 73-95), BEFORE the config is stored to `this._config`.
+**Where to implement:** In `setConfig()` of `power-flow-card-cascade.ts` (line 73-95), BEFORE the config is stored to `this._config`.
 
 **Pattern:**
 ```typescript
@@ -155,7 +155,7 @@ The grid position in middle row must split into `grid_main` and `grid_house`, or
 if (config.entities?.grid && !isNestedGridConfig(config.entities.grid)) {
   // Flat config detected: migrate to nested structure
   console.warn(
-    "power-flow-card-plus: Flat entities.grid config is deprecated. " +
+    "power-flow-card-cascade: Flat entities.grid config is deprecated. " +
     "Please migrate to entities.grid.house. See docs for details."
   );
   config = {
@@ -184,7 +184,7 @@ function isNestedGridConfig(grid: any): grid is { house?: Grid; main?: Grid } {
 ### New Config Types
 
 ```typescript
-// In power-flow-card-plus-config.ts:
+// In power-flow-card-cascade-config.ts:
 export type ConfigEntities = {
   battery?: Battery;
   grid?: Grid | NestedGridConfig;  // Union for backward compat
@@ -326,11 +326,11 @@ These are pure-function tests (no DOM needed), runnable with the existing Jest s
 
 ## Sources
 
-- Direct codebase analysis of `power-flow-card-plus` v0.2.6 (all files read and cross-referenced) -- HIGH confidence
+- Direct codebase analysis of `power-flow-card-cascade` v0.2.6 (all files read and cross-referenced) -- HIGH confidence
 - `package.json` for exact dependency versions -- HIGH confidence
 - SVG path geometry is estimated (not visually tested) -- MEDIUM confidence
 - Heatpump icon availability (`mdi:heat-pump`) -- MEDIUM confidence (exists in MDI 7.x)
 
 ---
-*Stack research for: power-flow-card-plus Messkonzept 8 extension*
+*Stack research for: power-flow-card-cascade Messkonzept 8 extension*
 *Researched: 2026-03-02*

@@ -1,5 +1,5 @@
 {
-  "name": "power-flow-card-plus",
+  "name": "power-flow-card-cascade",
   "version": "0.9.0",
   "description": "A power flow card for Home Assistant",
   "keywords": [
@@ -12,14 +12,14 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/flixlix/power-flow-card-plus.git"
+    "url": "git+https://github.com/GuiHue/power-flow-card-cascade.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/flixlix/power-flow-card-plus/issues"
+    "url": "https://github.com/GuiHue/power-flow-card-cascade/issues"
   },
-  "homepage": "https://github.com/flixlix/power-flow-card-plus#readme",
+  "homepage": "https://github.com/GuiHue/power-flow-card-cascade#readme",
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint src/*",

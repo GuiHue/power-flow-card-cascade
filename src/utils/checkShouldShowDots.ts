@@ -1,5 +1,5 @@
-import { PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "../power-flow-card-cascade-config";
 
-export const checkShouldShowDots = (config: PowerFlowCardPlusConfig) => {
+export const checkShouldShowDots = (config: PowerFlowCardCascadeConfig) => {
   return config.disable_dots !== true;
 };

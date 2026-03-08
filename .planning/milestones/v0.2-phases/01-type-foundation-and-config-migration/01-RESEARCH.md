@@ -1,7 +1,7 @@
 # Phase 1: Type Foundation and Config Migration - Research
 
 **Researched:** 2026-03-02
-**Domain:** TypeScript types, superstruct validation, config migration — power-flow-card-plus v0.2.6
+**Domain:** TypeScript types, superstruct validation, config migration — power-flow-card-cascade v0.2.6
 **Confidence:** HIGH (primary source: direct codebase analysis)
 
 ---
@@ -25,12 +25,12 @@
 - This means superstruct can be fully strict without needing to handle the legacy flat format
 
 **Deprecation warning message:**
-- `console.warn("[power-flow-card-plus] entities.grid has been migrated to entities.grid.house automatically. Update your config to suppress this warning.")`
+- `console.warn("[power-flow-card-cascade] entities.grid has been migrated to entities.grid.house automatically. Update your config to suppress this warning.")`
 - Fires once per `setConfig()` call when flat `entities.grid` (with `.entity` field at top level) is detected
 
 **Migration placement:**
 - Standalone `src/utils/migrate-config.ts` — pure function, independently testable, not coupled to the LitElement
-- Signature: `migrateConfig(raw: unknown): PowerFlowCardPlusConfig`
+- Signature: `migrateConfig(raw: unknown): PowerFlowCardCascadeConfig`
 - Migration idempotency: if `entities.grid.house` already exists (or `entities.grid` is undefined), skip migration
 - Migration detection: flat format identified by presence of `entities.grid.entity` (string or ComboEntity) at top level of the grid object
 
@@ -55,7 +55,7 @@ None — discussion stayed within phase scope.
 |----|-------------|-----------------|
 | CONF-01 | `entities.grid` accepts nested `house:` and `main:` sub-keys (both optional) | Type change: `ConfigEntities.grid` becomes `GridEntities \| Grid`; superstruct `object({ house: optional(...), main: optional(...) })` |
 | CONF-02 | Flat `entities.grid` silently auto-migrates to `entities.grid.house` at runtime | `migrateConfig()` pure function, called in `setConfig()` before `this._config` assignment; detection via `'entity' in grid` check |
-| CONF-03 | Deprecation warning logged to console when flat grid config is detected | `console.warn("[power-flow-card-plus] ...")` inside migration path in `migrateConfig()` |
+| CONF-03 | Deprecation warning logged to console when flat grid config is detected | `console.warn("[power-flow-card-cascade] ...")` inside migration path in `migrateConfig()` |
 | CONF-04 | `entities.heatpump` added as new top-level entity key with entity, cop, flow_from_grid_house, flow_from_grid_main fields | New `HeatpumpEntity` interface; add to `ConfigEntities`; add to `cardConfigStruct` as `heatpump: optional(object({...}))` |
 | CONF-05 | `CardConfigStruct` (superstruct) updated to validate new nested config shape — migration runs before validation in `setConfig()` | Update `cardConfigStruct.entities` in `_schema-all.ts`; update editor `setConfig()` to call `migrateConfig()` before `assert()` |
 </phase_requirements>
@@ -64,9 +64,9 @@ None — discussion stayed within phase scope.
 
 ## Summary
 
-Phase 1 is a pure-TypeScript change with no visual impact. It has three atomic sub-tasks that must land together: (1) update TypeScript types in `power-flow-card-plus-config.ts`, (2) write and test `src/utils/migrate-config.ts`, and (3) update the superstruct `cardConfigStruct` in `src/ui-editor/schema/_schema-all.ts`. All three are prerequisites for every downstream phase.
+Phase 1 is a pure-TypeScript change with no visual impact. It has three atomic sub-tasks that must land together: (1) update TypeScript types in `power-flow-card-cascade-config.ts`, (2) write and test `src/utils/migrate-config.ts`, and (3) update the superstruct `cardConfigStruct` in `src/ui-editor/schema/_schema-all.ts`. All three are prerequisites for every downstream phase.
 
-The critical ordering constraint is: **migration must run before superstruct validation in both `setConfig()` locations** — the card (`src/power-flow-card-plus.ts`) and the editor (`src/ui-editor/ui-editor.ts`). Currently the editor calls `assert(config, cardConfigStruct)` as its very first line without any migration. This must change.
+The critical ordering constraint is: **migration must run before superstruct validation in both `setConfig()` locations** — the card (`src/power-flow-card-cascade.ts`) and the editor (`src/ui-editor/ui-editor.ts`). Currently the editor calls `assert(config, cardConfigStruct)` as its very first line without any migration. This must change.
 
 The existing test infrastructure is Jest 29 + Babel (TypeScript transpiled, not ts-jest). There is exactly one test file (`__tests__/i18n.test.ts`). Migration logic is a pure function with no DOM or HA dependencies, making it straightforward to unit-test with the existing setup.
 
@@ -105,9 +105,9 @@ Note: superstruct `object()` strips unknown keys by default (called "mask" behav
 
 ```
 src/
-├── power-flow-card-plus-config.ts   # ConfigEntities, Grid, Battery, etc. — UPDATE HERE
+├── power-flow-card-cascade-config.ts   # ConfigEntities, Grid, Battery, etc. — UPDATE HERE
 ├── type.ts                           # BaseConfigEntity, EntityType — UPDATE EntityType
-├── power-flow-card-plus.ts          # Card setConfig() — WIRE migrateConfig() HERE
+├── power-flow-card-cascade.ts          # Card setConfig() — WIRE migrateConfig() HERE
 ├── ui-editor/
 │   ├── ui-editor.ts                  # Editor setConfig() — WIRE migrateConfig() HERE
 │   ├── types/config-page.ts          # ConfigPage = keyof ConfigEntities | "advanced" | null
@@ -124,12 +124,12 @@ __tests__/
 
 ### Pattern 1: ConfigEntities Extension
 
-**What:** Add `HeatpumpEntity` interface and `GridEntities` nested type alongside existing `Battery`, `Grid`, `Solar` etc. in `power-flow-card-plus-config.ts`. Update `ConfigEntities` to use new types.
+**What:** Add `HeatpumpEntity` interface and `GridEntities` nested type alongside existing `Battery`, `Grid`, `Solar` etc. in `power-flow-card-cascade-config.ts`. Update `ConfigEntities` to use new types.
 
 **Key decision (Claude's discretion):** Use simple optional-field approach for nested grid. A discriminated union adds no value here since migration ensures superstruct always sees the nested shape.
 
 ```typescript
-// Source: src/power-flow-card-plus-config.ts (current pattern observed)
+// Source: src/power-flow-card-cascade-config.ts (current pattern observed)
 
 // NEW: nested grid container type
 interface GridEntities {
@@ -164,11 +164,11 @@ export type ConfigEntities = {
 **What:** `src/utils/migrate-config.ts` exports a single pure function called by both setConfig locations.
 
 ```typescript
-// Source: Decision from CONTEXT.md + codebase analysis of setConfig() in power-flow-card-plus.ts
+// Source: Decision from CONTEXT.md + codebase analysis of setConfig() in power-flow-card-cascade.ts
 
-export function migrateConfig(raw: unknown): PowerFlowCardPlusConfig {
+export function migrateConfig(raw: unknown): PowerFlowCardCascadeConfig {
   // Cast to working type (raw is unknown from YAML parser)
-  const config = raw as PowerFlowCardPlusConfig;
+  const config = raw as PowerFlowCardCascadeConfig;
 
   // Check if grid is in flat format: presence of 'entity' at top-level of grid object
   // signals the pre-MK8 format. 'entity' can be a string or ComboEntity.
@@ -176,7 +176,7 @@ export function migrateConfig(raw: unknown): PowerFlowCardPlusConfig {
   if (grid !== undefined && 'entity' in grid) {
     // Flat format detected — migrate to nested
     console.warn(
-      "[power-flow-card-plus] entities.grid has been migrated to entities.grid.house automatically. " +
+      "[power-flow-card-cascade] entities.grid has been migrated to entities.grid.house automatically. " +
       "Update your config to suppress this warning."
     );
     return {
@@ -187,7 +187,7 @@ export function migrateConfig(raw: unknown): PowerFlowCardPlusConfig {
           house: grid,  // entire flat grid object becomes 'house'
         },
       },
-    } as PowerFlowCardPlusConfig;
+    } as PowerFlowCardCascadeConfig;
   }
 
   // Already nested (or no grid) — return same reference for idempotency
@@ -197,7 +197,7 @@ export function migrateConfig(raw: unknown): PowerFlowCardPlusConfig {
 
 **Idempotency guarantee:** If `entities.grid` has no `entity` key at top level (i.e., it's already `{ house: {...} }` or `{ main: {...} }`), the guard `'entity' in grid` is false and the function returns the original config reference unchanged. Calling it twice on already-migrated config produces the same object reference.
 
-**Signature:** `migrateConfig(raw: unknown): PowerFlowCardPlusConfig` — accepts `unknown` because YAML config is untyped when received from HA.
+**Signature:** `migrateConfig(raw: unknown): PowerFlowCardCascadeConfig` — accepts `unknown` because YAML config is untyped when received from HA.
 
 ### Pattern 3: superstruct Struct Update
 
@@ -237,11 +237,11 @@ entities: object({
 
 ### Pattern 4: Wire Migration into setConfig() Calls
 
-**Card setConfig (src/power-flow-card-plus.ts line 73):**
+**Card setConfig (src/power-flow-card-cascade.ts line 73):**
 
 ```typescript
 // BEFORE (current):
-setConfig(config: PowerFlowCardPlusConfig): void {
+setConfig(config: PowerFlowCardCascadeConfig): void {
   if ((config.entities as any).individual1 || ...) { ... }
   ...
   this._config = { ...config, ... };
@@ -260,7 +260,7 @@ setConfig(rawConfig: unknown): void {
 
 ```typescript
 // BEFORE (current):
-public async setConfig(config: PowerFlowCardPlusConfig): Promise<void> {
+public async setConfig(config: PowerFlowCardCascadeConfig): Promise<void> {
   assert(config, cardConfigStruct);  // assert FIRST — BUG: fails on old flat config
   this._config = config;
 }
@@ -319,7 +319,7 @@ public async setConfig(rawConfig: unknown): Promise<void> {
 
 ### Pitfall 3: TypeScript noUnusedParameters breaks setConfig signature change
 
-**What goes wrong:** Changing `setConfig(config: PowerFlowCardPlusConfig)` to `setConfig(rawConfig: unknown)` with `tsconfig.json` having `"noUnusedParameters": true` — if any code inside `setConfig` still references `config` by the old name before renaming, TypeScript errors.
+**What goes wrong:** Changing `setConfig(config: PowerFlowCardCascadeConfig)` to `setConfig(rawConfig: unknown)` with `tsconfig.json` having `"noUnusedParameters": true` — if any code inside `setConfig` still references `config` by the old name before renaming, TypeScript errors.
 
 **Why it happens:** `tsconfig.json` has `"noUnusedParameters": true`. Renaming a parameter but not all its usages inside the function body causes "parameter declared but never used" errors on the OLD name.
 
@@ -331,7 +331,7 @@ public async setConfig(rawConfig: unknown): Promise<void> {
 
 **Why it happens:** `babel.config.js` uses `@babel/preset-env` with `targets: { node: 'current' }` and `@babel/preset-typescript`. Babel strips types but does not type-check. The `i18n.test.ts` works because it only imports JSON files.
 
-**How to avoid:** The `migrate-config.ts` pure function should have no imports from `custom-card-helpers`, `lit`, or `home-assistant-js-websocket`. It should only import from `./power-flow-card-plus-config` (the type file). Types are stripped by Babel, so the test only needs the JS logic to work — type imports are fine.
+**How to avoid:** The `migrate-config.ts` pure function should have no imports from `custom-card-helpers`, `lit`, or `home-assistant-js-websocket`. It should only import from `./power-flow-card-cascade-config` (the type file). Types are stripped by Babel, so the test only needs the JS logic to work — type imports are fine.
 
 **Test the pure JS logic:** Pass a plain object literal `{ entities: { grid: { entity: "sensor.foo" } } }` to `migrateConfig()` and assert the output shape. No HA environment needed.
 
@@ -353,17 +353,17 @@ public async setConfig(rawConfig: unknown): Promise<void> {
 
 ```typescript
 // File: src/utils/migrate-config.ts
-// Source: Decision from CONTEXT.md + analysis of power-flow-card-plus.ts setConfig()
+// Source: Decision from CONTEXT.md + analysis of power-flow-card-cascade.ts setConfig()
 
-import type { PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
+import type { PowerFlowCardCascadeConfig } from "../power-flow-card-cascade-config";
 
 /**
  * Migrates legacy flat entities.grid config to the nested MK8 format.
  * Safe to call multiple times (idempotent).
  * Returns the same object reference if no migration was needed.
  */
-export function migrateConfig(raw: unknown): PowerFlowCardPlusConfig {
-  const config = raw as PowerFlowCardPlusConfig;
+export function migrateConfig(raw: unknown): PowerFlowCardCascadeConfig {
+  const config = raw as PowerFlowCardCascadeConfig;
 
   const grid = (config?.entities?.grid) as Record<string, unknown> | undefined;
 
@@ -371,7 +371,7 @@ export function migrateConfig(raw: unknown): PowerFlowCardPlusConfig {
   // Nested format: only 'house' and/or 'main' keys (no 'entity' at top level)
   if (grid !== undefined && 'entity' in grid) {
     console.warn(
-      "[power-flow-card-plus] entities.grid has been migrated to entities.grid.house automatically. " +
+      "[power-flow-card-cascade] entities.grid has been migrated to entities.grid.house automatically. " +
       "Update your config to suppress this warning."
     );
     return {
@@ -382,7 +382,7 @@ export function migrateConfig(raw: unknown): PowerFlowCardPlusConfig {
           house: grid as any,
         },
       },
-    } as PowerFlowCardPlusConfig;
+    } as PowerFlowCardCascadeConfig;
   }
 
   // Already nested or no grid configured — return original reference (idempotent)
@@ -459,7 +459,7 @@ describe("migrateConfig", () => {
   test("emits deprecation warning on flat config", () => {
     const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
     migrateConfig({ entities: { grid: { entity: "sensor.grid" } } });
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("[power-flow-card-plus]"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("[power-flow-card-cascade]"));
     warnSpy.mockRestore();
   });
 
@@ -486,7 +486,7 @@ describe("migrateConfig", () => {
 ### HeatpumpEntity type definition
 
 ```typescript
-// File: src/power-flow-card-plus-config.ts
+// File: src/power-flow-card-cascade-config.ts
 // Source: CONTEXT.md locked decisions
 
 interface HeatpumpEntity {
@@ -532,10 +532,10 @@ interface HeatpumpEntity {
 ## Sources
 
 ### Primary (HIGH confidence)
-- Direct codebase analysis of `power-flow-card-plus` v0.2.6 — all key files read and cross-referenced
-  - `src/power-flow-card-plus-config.ts` — ConfigEntities, Grid, Battery interfaces
+- Direct codebase analysis of `power-flow-card-cascade` v0.2.6 — all key files read and cross-referenced
+  - `src/power-flow-card-cascade-config.ts` — ConfigEntities, Grid, Battery interfaces
   - `src/type.ts` — BaseConfigEntity, EntityType union
-  - `src/power-flow-card-plus.ts` — card setConfig() implementation (lines 73-95)
+  - `src/power-flow-card-cascade.ts` — card setConfig() implementation (lines 73-95)
   - `src/ui-editor/ui-editor.ts` — editor setConfig() with assert() at line 73
   - `src/ui-editor/schema/_schema-all.ts` — cardConfigStruct with entities object
   - `src/ui-editor/types/config-page.ts` — ConfigPage = keyof ConfigEntities | "advanced" | null

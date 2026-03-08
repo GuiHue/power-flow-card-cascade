@@ -1,11 +1,11 @@
 import { html, svg } from "lit";
 import { individualSecondarySpan } from "./spans/individualSecondarySpan";
 import { NewDur, TemplatesObj } from "../type";
-import { PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "../power-flow-card-cascade-config";
 import { computeIndividualFlowRate } from "../utils/computeFlowRate";
 import { showLine } from "../utils/showLine";
 import { IndividualObject } from "../states/raw/individual/getIndividualObject";
-import { PowerFlowCardPlus } from "../power-flow-card-plus";
+import { PowerFlowCardCascade } from "../power-flow-card-cascade";
 import { styleLine } from "../utils/styleLine";
 import { checkShouldShowDots } from "../utils/checkShouldShowDots";
 
@@ -17,8 +17,8 @@ interface TopIndividual {
 }
 
 export const individualLeftTopElement = (
-  main: PowerFlowCardPlus,
-  config: PowerFlowCardPlusConfig,
+  main: PowerFlowCardCascade,
+  config: PowerFlowCardCascadeConfig,
   { individualObj, templatesObj, displayState, newDur }: TopIndividual
 ) => {
   if (!individualObj) return html`<div class="spacer"></div>`;

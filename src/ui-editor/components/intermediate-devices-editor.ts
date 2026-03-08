@@ -3,13 +3,13 @@ import { css, CSSResultGroup, html, LitElement, TemplateResult } from "lit";
 import { customElement, property, state } from "lit-element";
 import { LovelaceRowConfig } from "../types/entity-rows";
 import localize from "@/localize/localize";
-import { PowerFlowCardPlusConfig } from "@/power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 import "./intermediate-row-editor";
 
 @customElement("intermediate-devices-editor")
 export class IntermediateDevicesEditor extends LitElement {
   public hass!: HomeAssistant;
-  @property({ attribute: false }) public config!: PowerFlowCardPlusConfig;
+  @property({ attribute: false }) public config!: PowerFlowCardCascadeConfig;
 
   @state() private _configEntities?: LovelaceRowConfig[];
 

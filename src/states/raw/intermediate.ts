@@ -1,5 +1,5 @@
 import { HomeAssistant } from "custom-card-helpers";
-import { IntermediateEntity } from "@/power-flow-card-plus-config";
+import { IntermediateEntity } from "@/power-flow-card-cascade-config";
 import { getEntityState } from "../utils/getEntityState";
 import { getEntityStateWatts } from "../utils/getEntityStateWatts";
 

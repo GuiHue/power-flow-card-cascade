@@ -125,9 +125,9 @@ All existing SVG flow paths (solar→home, grid→home, battery→home, etc.) ar
 - `src/components/flows/gridMainToIntermediate.ts`
 
 ### Modified
-- `src/power-flow-card-plus-config.ts` — remove heatpump type, add IntermediateEntity
+- `src/power-flow-card-cascade-config.ts` — remove heatpump type, add IntermediateEntity
 - `src/type.ts` — update NewDur (remove heatpump entries, add intermediate entries)
-- `src/power-flow-card-plus.ts` — full render() rewrite for adaptive 4–6 col layout
+- `src/power-flow-card-cascade.ts` — full render() rewrite for adaptive 4–6 col layout
 - `src/components/flows/index.ts` — swap heatpump flows for intermediate flows
 - `src/style.ts` — add `.intermediate` styles, remove `.heatpump`, adjust row max-width
 - `src/logging.ts` — remove heatpump references

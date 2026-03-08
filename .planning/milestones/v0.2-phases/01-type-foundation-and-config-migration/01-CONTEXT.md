@@ -27,12 +27,12 @@ Extend TypeScript types, write runtime config migration, and update superstruct 
 - This means superstruct can be fully strict without needing to handle the legacy flat format
 
 ### Deprecation warning message
-- `console.warn("[power-flow-card-plus] entities.grid has been migrated to entities.grid.house automatically. Update your config to suppress this warning.")`
+- `console.warn("[power-flow-card-cascade] entities.grid has been migrated to entities.grid.house automatically. Update your config to suppress this warning.")`
 - Fires once per `setConfig()` call when flat `entities.grid` (with `.entity` field at top level) is detected
 
 ### Migration placement
 - Standalone `src/utils/migrate-config.ts` — pure function, independently testable, not coupled to the LitElement
-- Signature: `migrateConfig(raw: unknown): PowerFlowCardPlusConfig`
+- Signature: `migrateConfig(raw: unknown): PowerFlowCardCascadeConfig`
 - Migration idempotency: if `entities.grid.house` already exists (or `entities.grid` is undefined), skip migration
 - Migration detection: flat format identified by presence of `entities.grid.entity` (string or ComboEntity) at top level of the grid object
 
@@ -49,19 +49,19 @@ Extend TypeScript types, write runtime config migration, and update superstruct 
 
 ### Reusable Assets
 - `BaseConfigEntity` in `src/type.ts`: All entity types extend this — reuse for the `GridEntity` sub-type (house/main share the same fields as current `Grid`)
-- `Grid` interface in `src/power-flow-card-plus-config.ts`: Current flat grid type — becomes the type for `GridEntities.house` and `GridEntities.main`
+- `Grid` interface in `src/power-flow-card-cascade-config.ts`: Current flat grid type — becomes the type for `GridEntities.house` and `GridEntities.main`
 - Superstruct imports in `src/ui-editor/schema/_schema-all.ts`: `any, assign, boolean, integer, number, object, optional, string` already imported — add `union, literal` if needed for new types
 - `cardConfigStruct` in `_schema-all.ts`: This is the struct to update — currently uses `optional(any())` for all entities
 
 ### Established Patterns
 - Entity fields: `battery.state_of_charge` (plain name, not `_entity` suffix) — COP field follows same convention as `cop`
-- Config entities: All live in `ConfigEntities` type (`src/power-flow-card-plus-config.ts`) and as `optional(any())` in superstruct
-- `setConfig()` in `src/power-flow-card-plus.ts`: This is where migration must be called before any config assignment
+- Config entities: All live in `ConfigEntities` type (`src/power-flow-card-cascade-config.ts`) and as `optional(any())` in superstruct
+- `setConfig()` in `src/power-flow-card-cascade.ts`: This is where migration must be called before any config assignment
 - No existing migration infrastructure — this is the first migration
 
 ### Integration Points
 - `ConfigEntities` type needs `heatpump?: HeatpumpEntity` added
-- `setConfig()` in `power-flow-card-plus.ts` must call `migrateConfig()` on the raw config before the struct assertion (if any) and before `this._config` assignment
+- `setConfig()` in `power-flow-card-cascade.ts` must call `migrateConfig()` on the raw config before the struct assertion (if any) and before `this._config` assignment
 - Superstruct `cardConfigStruct.entities` in `_schema-all.ts` needs `grid` and `heatpump` updated
 - Only one existing test file (`__tests__/i18n.test.ts`) — new test file needed for migration tests
 

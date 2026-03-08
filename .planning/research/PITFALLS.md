@@ -9,12 +9,12 @@
 ### Pitfall 1: `EntityType` union blocks `config.entities[field]` for new node types
 
 **What goes wrong:**
-The `EntityType` union in `src/type.ts:62` is hardcoded to `"battery" | "grid" | "solar" | "individual1" | "individual2" | "home" | "fossil_fuel_percentage"`. The `getFieldInState`, `getFieldOutState`, and `getSecondaryState` functions in `src/states/raw/base.ts` all index `config.entities[field]` using this type. Adding `"heatpump"` or `"grid_house"` / `"grid_main"` as new field values requires updating `EntityType` AND updating `ConfigEntities` in `src/power-flow-card-plus-config.ts:94` in lockstep. If `EntityType` is extended but `ConfigEntities` is not (or vice versa), TypeScript will silently allow an `undefined` access or refuse to compile depending on the direction of the mismatch.
+The `EntityType` union in `src/type.ts:62` is hardcoded to `"battery" | "grid" | "solar" | "individual1" | "individual2" | "home" | "fossil_fuel_percentage"`. The `getFieldInState`, `getFieldOutState`, and `getSecondaryState` functions in `src/states/raw/base.ts` all index `config.entities[field]` using this type. Adding `"heatpump"` or `"grid_house"` / `"grid_main"` as new field values requires updating `EntityType` AND updating `ConfigEntities` in `src/power-flow-card-cascade-config.ts:94` in lockstep. If `EntityType` is extended but `ConfigEntities` is not (or vice versa), TypeScript will silently allow an `undefined` access or refuse to compile depending on the direction of the mismatch.
 
 Furthermore, `isEntityInverted` in `src/states/utils/isEntityInverted.ts` uses `config.entities[entityType]`, which will fail at runtime if a new entity type is in `EntityType` but has no corresponding key in `ConfigEntities`.
 
 **Why it happens:**
-`EntityType` and `ConfigEntities` are defined in separate files (`src/type.ts` and `src/power-flow-card-plus-config.ts`) with no compile-time constraint linking them. A developer updating one file may not realize the other must change.
+`EntityType` and `ConfigEntities` are defined in separate files (`src/type.ts` and `src/power-flow-card-cascade-config.ts`) with no compile-time constraint linking them. A developer updating one file may not realize the other must change.
 
 **How to avoid:**
 - Derive `EntityType` from `keyof ConfigEntities` instead of maintaining a separate string union. At minimum, add a type-level assertion: `type _Check = EntityType extends keyof ConfigEntities ? true : never;`
@@ -38,7 +38,7 @@ The visual editor calls `assert(config, cardConfigStruct)` in `src/ui-editor/ui-
 Worse: the nested grid migration (`entities.grid.house` / `entities.grid.main`) means the shape of `entities.grid` changes from `Grid` (flat) to a nested structure. The current superstruct schema uses `optional(any())` for grid, which will pass validation but provides no type safety. However, if the migration function runs AFTER `assert()` in the editor's `setConfig`, the pre-migration flat config will be validated against a schema that expects the new nested shape, or vice versa.
 
 **Why it happens:**
-Superstruct validation in the editor runs BEFORE any migration logic can transform the config. The editor's `setConfig` (line 72-75) calls `assert` as its first operation. If migration is only implemented in the card's `setConfig` (line 73-95 of `power-flow-card-plus.ts`), the editor receives the raw un-migrated config.
+Superstruct validation in the editor runs BEFORE any migration logic can transform the config. The editor's `setConfig` (line 72-75) calls `assert` as its first operation. If migration is only implemented in the card's `setConfig` (line 73-95 of `power-flow-card-cascade.ts`), the editor receives the raw un-migrated config.
 
 **How to avoid:**
 1. Add `heatpump: optional(any())` to the `entities` object in `cardConfigStruct` BEFORE any editor schema work.
@@ -59,7 +59,7 @@ Phase 1 (Config migration). The shared migration function and updated struct mus
 ### Pitfall 3: Energy balance double-counting when heatpump is both a grid consumer and a separate node
 
 **What goes wrong:**
-The current energy balance calculation in `src/power-flow-card-plus.ts:344-396` computes `totalHomeConsumption` (line 420) as `grid.state.toHome + solar.state.toHome + battery.state.toHome`. This represents all power flowing into the home. In Messkonzept 8, the heatpump sits between `grid_main` and `grid_house`. If `grid_main.fromGrid` includes the heatpump consumption AND the heatpump is displayed as a separate node with its own power reading, the energy balance will either:
+The current energy balance calculation in `src/power-flow-card-cascade.ts:344-396` computes `totalHomeConsumption` (line 420) as `grid.state.toHome + solar.state.toHome + battery.state.toHome`. This represents all power flowing into the home. In Messkonzept 8, the heatpump sits between `grid_main` and `grid_house`. If `grid_main.fromGrid` includes the heatpump consumption AND the heatpump is displayed as a separate node with its own power reading, the energy balance will either:
 - **Double-count:** `grid_main.toHome` already includes heatpump power, AND heatpump power is shown separately.
 - **Under-count:** If `grid_house.fromGrid` is used for `totalHomeConsumption` (which excludes heatpump), the heatpump node's power is not added back.
 
@@ -156,7 +156,7 @@ Phase 3 (SVG layout). Should be preceded by a design phase that produces exact c
 The card's `setConfig` is called every time the editor fires `config-changed`. If the migration function transforms `entities.grid` (flat) into `entities.grid.house` (nested) and writes back via `config-changed`, the editor receives the migrated config and fires another `config-changed`. If the migration is not idempotent (i.e., it transforms already-migrated config again), this creates an infinite loop. Even if idempotent, if migration produces a new object reference each time, Lit's change detection triggers re-renders indefinitely.
 
 **Why it happens:**
-The existing `setConfig` in `src/power-flow-card-plus.ts:73-95` modifies the config object (spreads and overrides values). If migration also creates a new object, and the editor stores this and fires `config-changed` again, the cycle repeats. Lit components re-render when `@state()` properties change, and `this._config = { ...config, ... }` always produces a new reference.
+The existing `setConfig` in `src/power-flow-card-cascade.ts:73-95` modifies the config object (spreads and overrides values). If migration also creates a new object, and the editor stores this and fires `config-changed` again, the cycle repeats. Lit components re-render when `@state()` properties change, and `this._config = { ...config, ... }` always produces a new reference.
 
 **How to avoid:**
 1. Make migration **idempotent**: if config is already in the new format, return the SAME object reference (not a spread copy).
@@ -225,7 +225,7 @@ Phase 1 (Config migration). Must be tested with both old and new config formats 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
 | Superstruct strips heatpump config | LOW | Add `heatpump: optional(any())` to `cardConfigStruct`. All user configs stored in HA dashboard YAML are unaffected; only the in-memory validated config loses the key. |
-| Energy balance double-counting | MEDIUM | Requires re-deriving the balance equations and updating `power-flow-card-plus.ts` render method. No config change needed, but may require state resolution changes in `src/states/raw/grid.ts`. |
+| Energy balance double-counting | MEDIUM | Requires re-deriving the balance equations and updating `power-flow-card-cascade.ts` render method. No config change needed, but may require state resolution changes in `src/states/raw/grid.ts`. |
 | Editor infinite loop from migration | HIGH | Users cannot open the editor at all. Recovery requires a hotfix release. Prevent by testing migration idempotency in CI before merge. |
 | SVG layout broken after node addition | MEDIUM | Requires adjusting hardcoded coordinates in flow files and CSS custom properties. Tedious but localized. Can be fixed without config changes. |
 | Config migration creates invalid state | HIGH | Users with old config see broken cards. Must ship a patch release with corrected migration. Prevent by testing migration with snapshot tests against real-world config samples. |
@@ -243,16 +243,16 @@ Phase 1 (Config migration). Must be tested with both old and new config formats 
 
 ## Sources
 
-- Direct codebase analysis of `power-flow-card-plus` v0.2.6 (commit `0fcd3d2`)
-- `src/power-flow-card-plus.ts` -- card `setConfig` and `render` method with energy balance logic
+- Direct codebase analysis of `power-flow-card-cascade` v0.2.6 (commit `0fcd3d2`)
+- `src/power-flow-card-cascade.ts` -- card `setConfig` and `render` method with energy balance logic
 - `src/ui-editor/ui-editor.ts` -- editor `setConfig` with `assert(config, cardConfigStruct)` and `_valueChanged` handler
 - `src/ui-editor/schema/_schema-all.ts` -- superstruct `cardConfigStruct` and entity schema definitions
 - `src/states/raw/base.ts` -- `getFieldInState`/`getFieldOutState` using `EntityType` to index `config.entities`
 - `src/type.ts` -- `EntityType` union, `GridObject` type with state shape
-- `src/power-flow-card-plus-config.ts` -- `ConfigEntities` type and `Grid` interface
+- `src/power-flow-card-cascade-config.ts` -- `ConfigEntities` type and `Grid` interface
 - `src/components/flows/gridToHome.ts` -- hardcoded SVG path coordinates and conditional layout logic
 - `src/style.ts` -- CSS custom properties for line positioning with hardcoded pixel values
 
 ---
-*Pitfalls research for: power-flow-card-plus Messkonzept 8 extension*
+*Pitfalls research for: power-flow-card-cascade Messkonzept 8 extension*
 *Researched: 2026-03-02*

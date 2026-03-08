@@ -1,6 +1,6 @@
-import { PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "../power-flow-card-cascade-config";
 
-export const styleLine = (power: number, config: PowerFlowCardPlusConfig): string => {
+export const styleLine = (power: number, config: PowerFlowCardCascadeConfig): string => {
   if (power > 0) return "";
   const displayZeroMode = config?.display_zero_lines?.mode;
   if (displayZeroMode === "show" || displayZeroMode === undefined) return "";

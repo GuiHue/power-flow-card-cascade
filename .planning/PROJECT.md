@@ -1,8 +1,8 @@
-# power-flow-card-plus — Messkonzept 8 Extension
+# power-flow-card-cascade — Messkonzept 8 Extension
 
 ## What This Is
 
-power-flow-card-plus is a Home Assistant Lovelace custom card that visualizes real-time energy flow between solar, battery, grid, and consumption nodes with animated flow lines. As of v0.2, it supports the German **Messkonzept 8** metering scheme — a cascaded dual-meter configuration with a dedicated heatpump consumption node, COP display, and a full visual editor for all new entities.
+power-flow-card-cascade is a Home Assistant Lovelace custom card that visualizes real-time energy flow between solar, battery, grid, and consumption nodes with animated flow lines. As of v0.2, it supports the German **Messkonzept 8** metering scheme — a cascaded dual-meter configuration with a dedicated heatpump consumption node, COP display, and a full visual editor for all new entities.
 
 ## Core Value
 

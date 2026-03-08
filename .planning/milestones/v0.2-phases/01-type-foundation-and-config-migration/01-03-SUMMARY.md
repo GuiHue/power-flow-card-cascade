@@ -33,11 +33,11 @@ key-files:
   created: []
   modified:
     - src/ui-editor/schema/_schema-all.ts
-    - src/power-flow-card-plus.ts
+    - src/power-flow-card-cascade.ts
     - src/ui-editor/ui-editor.ts
 
 key-decisions:
-  - "Both setConfig() signatures changed from PowerFlowCardPlusConfig to unknown to express that raw untrusted input is accepted before migration"
+  - "Both setConfig() signatures changed from PowerFlowCardCascadeConfig to unknown to express that raw untrusted input is accepted before migration"
   - "Entity guard in card setConfig updated from grid?.entity to (grid as any)?.house?.entity to match new nested GridEntities shape"
   - "heatpump added to cardConfigStruct with all four fields (entity, cop, flow_from_grid_house, flow_from_grid_main) as optional strings matching HeatpumpEntity type"
 
@@ -80,7 +80,7 @@ Each task was committed atomically:
 
 ## Files Created/Modified
 - `src/ui-editor/schema/_schema-all.ts` - Updated entities struct: grid is now strict nested object, heatpump added with all four optional string fields
-- `src/power-flow-card-plus.ts` - setConfig accepts unknown; migrateConfig called first; import added; entity guard uses house?.entity
+- `src/power-flow-card-cascade.ts` - setConfig accepts unknown; migrateConfig called first; import added; entity guard uses house?.entity
 - `src/ui-editor/ui-editor.ts` - setConfig accepts unknown; migrateConfig called before assert(); import added
 
 ## Decisions Made
@@ -110,7 +110,7 @@ None - no external service configuration required.
 
 - FOUND: .planning/phases/01-type-foundation-and-config-migration/01-03-SUMMARY.md
 - FOUND: src/ui-editor/schema/_schema-all.ts
-- FOUND: src/power-flow-card-plus.ts
+- FOUND: src/power-flow-card-cascade.ts
 - FOUND: src/ui-editor/ui-editor.ts
 - FOUND commit: 28ec3ff (Task 1)
 - FOUND commit: f53d272 (Task 2)

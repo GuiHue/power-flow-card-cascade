@@ -1,5 +1,5 @@
 import { HomeAssistant } from "custom-card-helpers";
-import { PowerFlowCardPlusConfig } from "@/power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 import { onlyNegative, onlyPositive } from "../utils/negativePositive";
 import { getEntityStateWatts } from "../utils/getEntityStateWatts";
 import { isNumberValue } from "@/utils/utils";
@@ -9,7 +9,7 @@ import { getFirstEntityName } from "../utils/mutliEntity";
 // Note: isEntityInverted(config, "grid") was removed — it reads GridEntities.invert_state
 // which is always undefined. invert_state lives on Grid (house/main), not GridEntities.
 
-export const getGridConsumptionState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getGridConsumptionState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const gridHouseConfig = (config.entities.grid as any)?.house;
   const entity = gridHouseConfig?.entity;
   if (entity === undefined) return null;
@@ -21,7 +21,7 @@ export const getGridConsumptionState = (hass: HomeAssistant, config: PowerFlowCa
   return getEntityStateWatts(hass, (entity as { production: string }).production);
 };
 
-export const getGridProductionState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getGridProductionState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const gridHouseConfig = (config.entities.grid as any)?.house;
   const entity = gridHouseConfig?.entity;
   if (entity === undefined) return null;
@@ -33,7 +33,7 @@ export const getGridProductionState = (hass: HomeAssistant, config: PowerFlowCar
   return getEntityStateWatts(hass, (entity as { consumption: string }).consumption);
 };
 
-export const getGridSecondaryState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getGridSecondaryState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const gridHouseConfig = (config.entities.grid as any)?.house;
   const entity = gridHouseConfig?.secondary_info?.entity;
   if (typeof entity !== "string") return null;
@@ -43,7 +43,7 @@ export const getGridSecondaryState = (hass: HomeAssistant, config: PowerFlowCard
   return secondaryState;
 };
 
-export const getGridMainConsumptionState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getGridMainConsumptionState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const gridMainConfig = (config.entities.grid as any)?.main;
   const entity = gridMainConfig?.entity;
   if (entity === undefined) return null;
@@ -56,7 +56,7 @@ export const getGridMainConsumptionState = (hass: HomeAssistant, config: PowerFl
   return getEntityStateWatts(hass, (entity as { production: string }).production);
 };
 
-export const getGridMainProductionState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getGridMainProductionState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const gridMainConfig = (config.entities.grid as any)?.main;
   const entity = gridMainConfig?.entity;
   if (entity === undefined) return null;
@@ -68,7 +68,7 @@ export const getGridMainProductionState = (hass: HomeAssistant, config: PowerFlo
   return getEntityStateWatts(hass, (entity as { consumption: string }).consumption);
 };
 
-export const getGridMainSecondaryState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getGridMainSecondaryState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const gridMainConfig = (config.entities.grid as any)?.main;
   const entity = gridMainConfig?.secondary_info?.entity;
   if (typeof entity !== "string") return null;

@@ -21,7 +21,7 @@ const serveOptions = {
 
 export default [
   {
-    input: ["src/power-flow-card-plus.ts"],
+    input: ["src/power-flow-card-cascade.ts"],
     output: [
       {
         dir: "dist",

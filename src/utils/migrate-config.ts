@@ -1,7 +1,7 @@
-import type { PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
+import type { PowerFlowCardCascadeConfig } from "../power-flow-card-cascade-config";
 
 /**
- * Migrates a raw (possibly flat) config to the canonical nested PowerFlowCardPlusConfig shape.
+ * Migrates a raw (possibly flat) config to the canonical nested PowerFlowCardCascadeConfig shape.
  *
  * Flat format (legacy): entities.grid has an 'entity' key at the top level.
  * Nested format (current): entities.grid has 'house' and/or 'main' sub-keys.
@@ -10,16 +10,16 @@ import type { PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
  * config returns the exact same object reference without any modification.
  *
  * @param raw - Unknown input (typically the raw config object from setConfig)
- * @returns PowerFlowCardPlusConfig with nested grid shape guaranteed
+ * @returns PowerFlowCardCascadeConfig with nested grid shape guaranteed
  */
-export function migrateConfig(raw: unknown): PowerFlowCardPlusConfig {
-  const config = raw as PowerFlowCardPlusConfig;
+export function migrateConfig(raw: unknown): PowerFlowCardCascadeConfig {
+  const config = raw as PowerFlowCardCascadeConfig;
   const grid = config?.entities?.grid as Record<string, unknown> | undefined;
 
   // Detection: flat format has 'entity' key at top level of grid object
   if (grid !== undefined && "entity" in grid) {
     console.warn(
-      "[power-flow-card-plus] entities.grid has been migrated to entities.grid.house automatically. Update your config to suppress this warning."
+      "[power-flow-card-cascade] entities.grid has been migrated to entities.grid.house automatically. Update your config to suppress this warning."
     );
 
     // Migration: wrap the original grid object under the 'house' sub-key

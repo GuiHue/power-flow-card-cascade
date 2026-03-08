@@ -1,6 +1,6 @@
 {
-  "name": "Power Flow Card Plus",
+  "name": "Power Flow Card Cascade",
   "render_readme": true,
   "homeassistant": "2023.12.3",
-  "filename": "power-flow-card-plus.js"
+  "filename": "power-flow-card-cascade.js"
 }

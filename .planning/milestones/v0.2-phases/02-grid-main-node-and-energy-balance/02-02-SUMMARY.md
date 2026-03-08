@@ -36,7 +36,7 @@ key-files:
     - src/style.ts
 
 key-decisions:
-  - "gridMain?: any added as optional field to Flows interface — avoids breaking existing flowElement callers in power-flow-card-plus.ts until Plan 02-03 wires it in"
+  - "gridMain?: any added as optional field to Flows interface — avoids breaking existing flowElement callers in power-flow-card-cascade.ts until Plan 02-03 wires it in"
   - "FlowsWithGridMain intersection type used in gridMainToGridHouse.ts to extend Flows locally — cleaner than a second interface parameter"
   - "flowGridMainToGridHouse guarded with 'gridMain ?' check in flowElement — safe no-op when gridMain is not yet passed"
 
@@ -91,7 +91,7 @@ Each task was committed atomically:
 
 ## Decisions Made
 
-- Added `gridMain?: any` as optional to `Flows` interface rather than required — prevents breaking all existing `flowElement` callers in `power-flow-card-plus.ts` until Plan 02-03 wires the real value in
+- Added `gridMain?: any` as optional to `Flows` interface rather than required — prevents breaking all existing `flowElement` callers in `power-flow-card-cascade.ts` until Plan 02-03 wires the real value in
 - Used `FlowsWithGridMain = Flows & { gridMain: any }` intersection type locally in `gridMainToGridHouse.ts` — keeps the shared interface optional while requiring gridMain within the flow file's scope
 - Guarded `flowGridMainToGridHouse` call in `flowElement` with `gridMain ? ... : ""` — safe no-op until 02-03 passes gridMain
 

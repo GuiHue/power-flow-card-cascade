@@ -1,13 +1,13 @@
 import { html } from "lit";
-import { PowerFlowCardPlus } from "../power-flow-card-plus";
+import { PowerFlowCardCascade } from "../power-flow-card-cascade";
 import { displayValue } from "../utils/displayValue";
 import { generalSecondarySpan } from "./spans/generalSecondarySpan";
 import { TemplatesObj } from "../type";
-import { ConfigEntities, PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
+import { ConfigEntities, PowerFlowCardCascadeConfig } from "../power-flow-card-cascade-config";
 
 export const gridMainElement = (
-  main: PowerFlowCardPlus,
-  config: PowerFlowCardPlusConfig,
+  main: PowerFlowCardCascade,
+  config: PowerFlowCardCascadeConfig,
   { entities, gridMain, templatesObj }: { entities: ConfigEntities; gridMain: any; templatesObj: TemplatesObj }
 ) => {
   // entities.grid is GridEntities (house/main). Access the .main sub-config.

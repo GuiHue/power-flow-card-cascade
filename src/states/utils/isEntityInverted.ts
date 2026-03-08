@@ -1,4 +1,4 @@
-import { PowerFlowCardPlusConfig } from "@/power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 import { EntityType } from "@/type";
 
-export const isEntityInverted = (config: PowerFlowCardPlusConfig, entityType: EntityType) => !!config.entities[entityType]?.invert_state;
+export const isEntityInverted = (config: PowerFlowCardCascadeConfig, entityType: EntityType) => !!config.entities[entityType]?.invert_state;

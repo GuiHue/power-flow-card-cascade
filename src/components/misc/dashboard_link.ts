@@ -1,8 +1,8 @@
 import { html } from "lit";
-import { PowerFlowCardPlusConfig } from "@/power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 import { HomeAssistant } from "custom-card-helpers";
 
-export const dashboardLinkElement = (config: PowerFlowCardPlusConfig, hass: HomeAssistant) => {
+export const dashboardLinkElement = (config: PowerFlowCardCascadeConfig, hass: HomeAssistant) => {
   return config.dashboard_link || config.second_dashboard_link
     ? html`
         <div class="card-actions">

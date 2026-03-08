@@ -15,7 +15,7 @@ import { dashboardLinkElement } from "./components/misc/dashboard_link";
 import { nonFossilElement } from "./components/nonFossil";
 import { solarElement } from "./components/solar";
 import { handleAction } from "./ha/panels/lovelace/common/handle-action";
-import { PowerFlowCardPlusConfig } from "./power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "./power-flow-card-cascade-config";
 import { getBatteryInState, getBatteryOutState, getBatteryStateOfCharge } from "./states/raw/battery";
 import {
   getGridConsumptionState,
@@ -73,9 +73,9 @@ registerCustomCard({
 });
 
 @customElement("power-flow-card-cascade")
-export class PowerFlowCardPlus extends LitElement {
+export class PowerFlowCardCascade extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
-  @state() private _config = {} as PowerFlowCardPlusConfig;
+  @state() private _config = {} as PowerFlowCardCascadeConfig;
 
   @state() private _templateResults: Partial<Record<string, RenderTemplateResult>> = {};
   @state() private _unsubRenderTemplates?: Map<string, Promise<UnsubscribeFunc>> = new Map();

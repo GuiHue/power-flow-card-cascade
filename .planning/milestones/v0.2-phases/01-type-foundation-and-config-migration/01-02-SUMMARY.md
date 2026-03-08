@@ -7,9 +7,9 @@ tags: [typescript, migration, tdd, jest, config, grid]
 # Dependency graph
 requires:
   - phase: 01-01
-    provides: GridEntities interface (house/main sub-keys), PowerFlowCardPlusConfig type
+    provides: GridEntities interface (house/main sub-keys), PowerFlowCardCascadeConfig type
 provides:
-  - migrateConfig pure function — accepts unknown, returns PowerFlowCardPlusConfig with nested grid shape
+  - migrateConfig pure function — accepts unknown, returns PowerFlowCardCascadeConfig with nested grid shape
   - Full migration test suite — 8 test cases covering all behaviors
   - Idempotency guarantee: same object reference returned for already-nested or no-grid configs
   - Deprecation warning on flat config detection
@@ -35,8 +35,8 @@ key-files:
 key-decisions:
   - "Migration detection via 'entity' in grid (top-level entity key = flat format) — same guard as CONTEXT.md locked decision"
   - "Idempotency: no-op cases (no grid, or nested grid) return same object reference — enables safe double-call in setConfig"
-  - "Type-only import from power-flow-card-plus-config — Babel strips it, so no ESM/CJS issues in Jest"
-  - "Deprecation message: '[power-flow-card-plus] entities.grid has been migrated to entities.grid.house automatically. Update your config to suppress this warning.'"
+  - "Type-only import from power-flow-card-cascade-config — Babel strips it, so no ESM/CJS issues in Jest"
+  - "Deprecation message: '[power-flow-card-cascade] entities.grid has been migrated to entities.grid.house automatically. Update your config to suppress this warning.'"
 
 patterns-established:
   - "migrateConfig pattern: pure function, standalone module, independently testable without LitElement coupling"
@@ -66,7 +66,7 @@ completed: 2026-03-02
 ## Accomplishments
 
 - Wrote 8 failing tests (RED) covering: flat string migration, flat ComboEntity migration, idempotency by reference, double-migration safety, no-grid passthrough, deprecation warning (called / not called), and heatpump preservation
-- Implemented `migrateConfig(raw: unknown): PowerFlowCardPlusConfig` with detection via `'entity' in grid`, spread migration to `{ house: originalGrid }`, and same-reference return for no-op cases
+- Implemented `migrateConfig(raw: unknown): PowerFlowCardCascadeConfig` with detection via `'entity' in grid`, spread migration to `{ house: originalGrid }`, and same-reference return for no-op cases
 - `pnpm typecheck` exits 0, full test suite 21/21 passing (13 i18n + 8 migrate-config)
 
 ## Task Commits
@@ -78,7 +78,7 @@ TDD task with two commits:
 
 ## Files Created/Modified
 
-- `src/utils/migrate-config.ts` - Pure migrateConfig function; accepts unknown, returns PowerFlowCardPlusConfig; type-only import from config file
+- `src/utils/migrate-config.ts` - Pure migrateConfig function; accepts unknown, returns PowerFlowCardCascadeConfig; type-only import from config file
 - `__tests__/migrate-config.test.ts` - Full test suite: 8 test cases using jest.spyOn for warn spy, toBe for reference equality, toEqual for deep equality
 
 ## Decisions Made
@@ -101,7 +101,7 @@ None - no external service configuration required.
 
 ## Next Phase Readiness
 
-- `migrateConfig` is ready to be called in `setConfig()` in `src/power-flow-card-plus.ts` before superstruct assertion (Plan 01-03 will wire this up)
+- `migrateConfig` is ready to be called in `setConfig()` in `src/power-flow-card-cascade.ts` before superstruct assertion (Plan 01-03 will wire this up)
 - Migration function is independently testable with zero coupling to LitElement or HA APIs
 - Idempotency confirmed by reference equality test — safe to call unconditionally in setConfig
 

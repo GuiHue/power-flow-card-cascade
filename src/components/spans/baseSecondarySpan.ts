@@ -1,10 +1,10 @@
 import { html } from "lit";
-import { PowerFlowCardPlus } from "@/power-flow-card-plus";
+import { PowerFlowCardCascade } from "@/power-flow-card-cascade";
 import { offlineStr } from "@/type";
 import { ActionConfig } from "custom-card-helpers";
 
 type BaseSecondarySpan = {
-  main: PowerFlowCardPlus;
+  main: PowerFlowCardCascade;
   className: string;
   template?: string;
   value?: string;

@@ -25,7 +25,7 @@ human_verification:
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | grid_main node renders to the LEFT of grid_house in middle row | VERIFIED | Lines 685-694 of power-flow-card-plus.ts: `${gridMain.has ? gridMainElement(...) : spacer}` immediately before `${grid.has ? gridElement(...) : spacer}` |
+| 1 | grid_main node renders to the LEFT of grid_house in middle row | VERIFIED | Lines 685-694 of power-flow-card-cascade.ts: `${gridMain.has ? gridMainElement(...) : spacer}` immediately before `${grid.has ? gridElement(...) : spacer}` |
 | 2 | grid_main displays power value from its configured HA entity | VERIFIED | gridMainElement renders `fromGridMain` / `toGridMain` from `gridMain.state`; state resolvers `getGridMainConsumptionState` / `getGridMainProductionState` exist and read from `(config.entities.grid as any)?.main` |
 | 3 | Non-fossil percentage bubble attaches to grid_main when MK8 is configured | UNCERTAIN | `nonFossilElement` receives `grid` (not `gridMain`) — positioning relies on automatic flex alignment between the top row and middle row. Both rows use `display:flex;justify-content:space-between` with potentially different item counts. Cannot verify visual alignment programmatically. |
 | 4 | grid_main supports power outage detection independently | VERIFIED | gridMain object includes `powerOutage: { has, isOutage, icon, name, entityGenerator }` reading from `gridMainConfig?.power_outage` — identical structure to grid_house power outage handling |
@@ -52,7 +52,7 @@ human_verification:
 | `src/components/flows/gridMainToGridHouse.ts` | flowGridMainToGridHouse — bidirectional animated flow line | VERIFIED | Exports `flowGridMainToGridHouse`. Bidirectional `animateMotion`: default for `fromGridMain`, `keyPoints="1;0"` for `toGridMain`. 71 lines — substantive implementation. |
 | `src/components/flows/index.ts` | Updated Flows interface with gridMain?, flowElement calls it | VERIFIED | `Flows` interface has `gridMain?: any`. `flowElement` destructures `gridMain` and calls `gridMain ? flowGridMainToGridHouse(...) : ""`. |
 | `src/style.ts` | CSS for .grid-main circle and icon styling | VERIFIED | Lines 439-441: `.grid-main .circle { border-color: var(--circle-grid-color); }`. Lines 461-463: `.grid-main ha-icon:not(.small) { color: var(--icon-grid-color); }`. |
-| `src/power-flow-card-plus.ts` | gridMain object construction + middle row slot + newDur extension + flowElement update | VERIFIED | gridMain object at line 219; middle row at 685; `newDur.gridMainToGridHouse` at 551; `flowElement` receives `gridMain` at line 741. |
+| `src/power-flow-card-cascade.ts` | gridMain object construction + middle row slot + newDur extension + flowElement update | VERIFIED | gridMain object at line 219; middle row at 685; `newDur.gridMainToGridHouse` at 551; `flowElement` receives `gridMain` at line 741. |
 | `src/components/grid.ts` | gridConfig reads from .house sub-key | VERIFIED | Line 14: `const gridConfig = (entities.grid as any)?.house;` |
 
 ---
@@ -61,12 +61,12 @@ human_verification:
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| `src/power-flow-card-plus.ts` | `src/states/raw/grid.ts` | `getGridMainConsumptionState` / `getGridMainProductionState` calls in render() | WIRED | Line 20 import: `getGridMainConsumptionState, getGridMainProductionState, getGridMainSecondaryState`. Lines 224-225: called to populate `gridMain.state`. |
-| `src/power-flow-card-plus.ts` | `src/components/gridMain.ts` | `gridMainElement` called in middle row | WIRED | Line 21 import: `gridMainElement`. Line 686: `gridMainElement(this, this._config, { entities, gridMain, templatesObj })`. |
-| `src/power-flow-card-plus.ts` | `src/components/flows/index.ts` | `flowElement` receives `gridMain` parameter | WIRED | Line 741: `gridMain,` inside `flowElement(this._config, { battery, grid, gridMain, individual, newDur, solar })`. |
+| `src/power-flow-card-cascade.ts` | `src/states/raw/grid.ts` | `getGridMainConsumptionState` / `getGridMainProductionState` calls in render() | WIRED | Line 20 import: `getGridMainConsumptionState, getGridMainProductionState, getGridMainSecondaryState`. Lines 224-225: called to populate `gridMain.state`. |
+| `src/power-flow-card-cascade.ts` | `src/components/gridMain.ts` | `gridMainElement` called in middle row | WIRED | Line 21 import: `gridMainElement`. Line 686: `gridMainElement(this, this._config, { entities, gridMain, templatesObj })`. |
+| `src/power-flow-card-cascade.ts` | `src/components/flows/index.ts` | `flowElement` receives `gridMain` parameter | WIRED | Line 741: `gridMain,` inside `flowElement(this._config, { battery, grid, gridMain, individual, newDur, solar })`. |
 | `src/components/flows/index.ts` | `src/components/flows/gridMainToGridHouse.ts` | `flowGridMainToGridHouse` called in flowElement | WIRED | Line 11 import. Line 27: `${gridMain ? flowGridMainToGridHouse(config, { battery, grid, gridMain, individual, solar, newDur }) : ""}`. |
 | `src/components/gridMain.ts` | `src/states/raw/grid.ts` | `fromGridMain`/`toGridMain` values consumed from `gridMain.state` (built in render via getGridMain* functions) | WIRED | gridMainElement reads `gridMain.state.fromGridMain` (line 46) and `gridMain.state.toGridMain` (line 44). These are populated by `getGridMainConsumptionState` / `getGridMainProductionState` in render(). |
-| `src/type.ts` (NewDur) | `src/power-flow-card-plus.ts` | `gridMainToGridHouse` field consumed in newDur | WIRED | `NewDur.gridMainToGridHouse` defined at type.ts:100. Assigned via `computeFlowRate` at power-flow-card-plus.ts:551. Passed to `flowGridMainToGridHouse` via `newDur.gridMainToGridHouse` at gridMainToGridHouse.ts:43. |
+| `src/type.ts` (NewDur) | `src/power-flow-card-cascade.ts` | `gridMainToGridHouse` field consumed in newDur | WIRED | `NewDur.gridMainToGridHouse` defined at type.ts:100. Assigned via `computeFlowRate` at power-flow-card-cascade.ts:551. Passed to `flowGridMainToGridHouse` via `newDur.gridMainToGridHouse` at gridMainToGridHouse.ts:43. |
 
 ---
 
@@ -74,7 +74,7 @@ human_verification:
 
 | Requirement | Source Plan | Description | Status | Evidence |
 |-------------|-------------|-------------|--------|----------|
-| GRID-01 | 02-02, 02-03 | grid_main node renders left of grid_house | SATISFIED | Middle row: `gridMainElement` (or spacer) at position 1, `gridElement` at position 2. Lines 685-694 of power-flow-card-plus.ts. |
+| GRID-01 | 02-02, 02-03 | grid_main node renders left of grid_house | SATISFIED | Middle row: `gridMainElement` (or spacer) at position 1, `gridElement` at position 2. Lines 685-694 of power-flow-card-cascade.ts. |
 | GRID-02 | 02-01, 02-03 | grid_main displays power from configured HA entity | SATISFIED | `getGridMainConsumptionState` / `getGridMainProductionState` read from `(config.entities.grid as any)?.main`; values passed to gridMainElement as `gridMain.state.fromGridMain` / `toGridMain`. |
 | GRID-03 | 02-02, 02-03 | non_fossil bubble attaches to grid_main (not grid_house) | NEEDS HUMAN | Plan 02-03 claims flex layout auto-aligns top row items when middle row gains a slot. nonFossilElement is first item in the top row div. Alignment with gridMain (leftmost in middle row) depends on both rows having the same effective column count — cannot verify visually without rendering. |
 | GRID-04 | 02-01, 02-03 | grid_main supports independent power outage detection | SATISFIED | `gridMain.powerOutage` object in render(): reads `gridMainConfig?.power_outage?.entity`, `state_alert`, `icon_alert`, `label_alert`, `entity_generator`. Rendered in gridMainElement at line 101. |
@@ -93,7 +93,7 @@ human_verification:
 |------|------|---------|----------|--------|
 | `src/ui-editor/components/individual-row-editor.ts` | 184-191 | `placeholder` property (DOM sort utility) | Info | Unrelated to Phase 2 — drag-and-drop sort artifact, not a stub. No impact. |
 
-No Phase 2 files contain TODO/FIXME, empty implementations, or stub return values. The `gridMainToGridHouse: 0` placeholder from Plan 02-01 was correctly replaced with `computeFlowRate(...)` in Plan 02-03 (confirmed at line 551 of power-flow-card-plus.ts).
+No Phase 2 files contain TODO/FIXME, empty implementations, or stub return values. The `gridMainToGridHouse: 0` placeholder from Plan 02-01 was correctly replaced with `computeFlowRate(...)` in Plan 02-03 (confirmed at line 551 of power-flow-card-cascade.ts).
 
 ---
 

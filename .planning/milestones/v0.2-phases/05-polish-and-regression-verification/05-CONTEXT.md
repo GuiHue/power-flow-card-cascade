@@ -57,7 +57,7 @@ Ensure the card is visually correct across all layout modes (3-6 columns) and ed
 - `computeFlowGeometry()` in `src/utils/flowGeometry.ts`: Computes column layout, rowMaxWidth, and column assignments based on hasGridMain/hasRightSection
 - `showLine()` in `src/utils/showLine.ts`: Handles display_zero_lines config for flow visibility
 - `styleLine()` in `src/utils/styleLine.ts`: Handles transparency/grey-out for zero-value lines
-- Inline SVG pattern in `solar.ts`, `battery.ts`, and spacer divs in `power-flow-card-plus.ts` — working reference for naturally-positioned flow lines
+- Inline SVG pattern in `solar.ts`, `battery.ts`, and spacer divs in `power-flow-card-cascade.ts` — working reference for naturally-positioned flow lines
 
 ### Established Patterns
 - All straight lines use inline SVGs in flex-positioned containers (circle-containers or spacer divs)
@@ -69,7 +69,7 @@ Ensure the card is visually correct across all layout modes (3-6 columns) and ed
 - `src/components/flows/*.ts`: Individual flow components — curved ones (solarToHome, solarToGrid, batteryToHome, batteryGrid, gridHouseToIntermediate, gridMainToIntermediate) need alignment fixes
 - `src/utils/flowGeometry.ts`: FlowGeometry interface and compute function — may need updates if responsive strategy changes
 - `src/style.ts`: CSS `.lines` container styles — overlay positioning may need adjustment
-- `src/power-flow-card-plus.ts` render(): Where all flow lines are composed into the template
+- `src/power-flow-card-cascade.ts` render(): Where all flow lines are composed into the template
 
 </code_context>
 

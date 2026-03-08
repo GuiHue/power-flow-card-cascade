@@ -1,9 +1,9 @@
 import { html } from "lit";
 import { individualSecondarySpan } from "./spans/individualSecondarySpan";
 import { NewDur, TemplatesObj } from "../type";
-import { PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "../power-flow-card-cascade-config";
 import { IndividualObject } from "../states/raw/individual/getIndividualObject";
-import { PowerFlowCardPlus } from "../power-flow-card-plus";
+import { PowerFlowCardCascade } from "../power-flow-card-cascade";
 
 interface TopIndividual {
   newDur: NewDur;
@@ -15,8 +15,8 @@ interface TopIndividual {
 }
 
 export const individualRightTopElement = (
-  main: PowerFlowCardPlus,
-  config: PowerFlowCardPlusConfig,
+  main: PowerFlowCardCascade,
+  config: PowerFlowCardCascadeConfig,
   { individualObj, templatesObj, displayState, newDur: _newDur, battery: _battery, individualObjs: _individualObjs }: TopIndividual
 ) => {
   if (!individualObj) return html`<div class="spacer"></div>`;

@@ -9,7 +9,7 @@ requires:
   - phase: 01-type-foundation-and-config-migration
     provides: NewDur type, HeatpumpEntity config interface, getEntityState/getEntityStateWatts utilities
   - phase: 02-grid-main-node-and-energy-balance
-    provides: newDur object construction pattern in power-flow-card-plus.ts
+    provides: newDur object construction pattern in power-flow-card-cascade.ts
 provides:
   - NewDur type extended with heatpumpFromGridHouse and heatpumpFromGridMain fields
   - Four heatpump state resolver functions in src/states/raw/heatpump.ts
@@ -34,13 +34,13 @@ key-files:
   modified:
     - src/type.ts
     - src/style.ts
-    - src/power-flow-card-plus.ts
-    - src/power-flow-card-plus-config.ts
+    - src/power-flow-card-cascade.ts
+    - src/power-flow-card-cascade-config.ts
 
 key-decisions:
   - "heatpumpFromGridHouse/Main initialized to 0 in newDur placeholder — Plan 03-03 will compute real flow rates"
   - "tap_action added to HeatpumpEntity interface (Rule 2 auto-fix) — required for openDetails click handler"
-  - "ActionConfig imported from custom-card-helpers in power-flow-card-plus-config.ts to support tap_action"
+  - "ActionConfig imported from custom-card-helpers in power-flow-card-cascade-config.ts to support tap_action"
 
 patterns-established:
   - "COP null guard: heatpump.cop.state !== null (not !== undefined) controls DOM presence of COP span"
@@ -83,13 +83,13 @@ Each task was committed atomically:
 - `src/states/raw/heatpump.ts` - New file: four state resolver exports
 - `src/components/heatpump.ts` - New file: heatpumpElement function with COP null guard
 - `src/style.ts` - Added `.circle-container.heatpump`, `.heatpump .circle`, `.heatpump ha-icon:not(.small)` CSS
-- `src/power-flow-card-plus.ts` - Added `heatpumpFromGridHouse: 0` and `heatpumpFromGridMain: 0` to newDur object
-- `src/power-flow-card-plus-config.ts` - Added `tap_action?: ActionConfig` to HeatpumpEntity; added ActionConfig import
+- `src/power-flow-card-cascade.ts` - Added `heatpumpFromGridHouse: 0` and `heatpumpFromGridMain: 0` to newDur object
+- `src/power-flow-card-cascade-config.ts` - Added `tap_action?: ActionConfig` to HeatpumpEntity; added ActionConfig import
 
 ## Decisions Made
-- `heatpumpFromGridHouse` and `heatpumpFromGridMain` initialized to `0` in the `newDur` placeholder in `power-flow-card-plus.ts` — Plan 03-03 will wire the real computed values using the state resolvers
+- `heatpumpFromGridHouse` and `heatpumpFromGridMain` initialized to `0` in the `newDur` placeholder in `power-flow-card-cascade.ts` — Plan 03-03 will wire the real computed values using the state resolvers
 - `tap_action` added to `HeatpumpEntity` interface in config (Rule 2 auto-fix) because `heatpumpElement` references `entities.heatpump?.tap_action` and TypeScript would not compile without it
-- `ActionConfig` import added to `power-flow-card-plus-config.ts` from `custom-card-helpers` to support the new field
+- `ActionConfig` import added to `power-flow-card-cascade-config.ts` from `custom-card-helpers` to support the new field
 
 ## Deviations from Plan
 
@@ -98,16 +98,16 @@ Each task was committed atomically:
 **1. [Rule 2 - Missing Critical] Added tap_action to HeatpumpEntity interface**
 - **Found during:** Task 2 (heatpumpElement component creation)
 - **Issue:** `HeatpumpEntity` interface lacked `tap_action?: ActionConfig` field; heatpumpElement references `entities.heatpump?.tap_action` causing 6 TypeScript errors (TS2339)
-- **Fix:** Added `tap_action?: ActionConfig` to `HeatpumpEntity` in `power-flow-card-plus-config.ts` and imported `ActionConfig` from `custom-card-helpers`
-- **Files modified:** `src/power-flow-card-plus-config.ts`
+- **Fix:** Added `tap_action?: ActionConfig` to `HeatpumpEntity` in `power-flow-card-cascade-config.ts` and imported `ActionConfig` from `custom-card-helpers`
+- **Files modified:** `src/power-flow-card-cascade-config.ts`
 - **Verification:** `pnpm typecheck` passes with no errors
 - **Committed in:** `fea493d` (Task 2 commit)
 
 **2. [Rule 3 - Blocking] Initialized heatpumpFromGridHouse/Main in newDur literal**
 - **Found during:** Task 1 (after extending NewDur type)
-- **Issue:** Existing `newDur` object in `power-flow-card-plus.ts` missing the two new required fields (TS2739 error)
+- **Issue:** Existing `newDur` object in `power-flow-card-cascade.ts` missing the two new required fields (TS2739 error)
 - **Fix:** Added `heatpumpFromGridHouse: 0` and `heatpumpFromGridMain: 0` as placeholders; Plan 03-03 will compute real values
-- **Files modified:** `src/power-flow-card-plus.ts`
+- **Files modified:** `src/power-flow-card-cascade.ts`
 - **Verification:** `pnpm typecheck` passes
 - **Committed in:** `22c2ec8` (Task 1 commit)
 

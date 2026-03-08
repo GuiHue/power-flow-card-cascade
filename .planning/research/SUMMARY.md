@@ -1,6 +1,6 @@
 # Project Research Summary
 
-**Project:** power-flow-card-plus — Messkonzept 8 Extension
+**Project:** power-flow-card-cascade — Messkonzept 8 Extension
 **Domain:** Home Assistant Lovelace custom card (Lit/TypeScript SVG power flow visualization)
 **Researched:** 2026-03-02
 **Confidence:** HIGH (all research derived from direct codebase analysis of v0.2.6)
@@ -58,7 +58,7 @@ The Messkonzept 8 feature set is narrow and well-defined. Scope creep must be ac
 The architecture follows a strict "extend, don't modify" principle. The existing 3-row flexbox layout is extended conditionally: when `entities.grid.main` is configured (MK8 mode), `grid_main` is inserted as the new leftmost node in Row 2 and `heatpump` is inserted in Row 3. When `entities.grid.main` is absent, rendering is identical to the current release. New flow lines are implemented as separate SVG containers (the nonFossil inline SVG pattern), avoiding any changes to the existing 6 flow line coordinate systems. All state computation lives in the main card's `render()` method following the existing pattern of inline object literals.
 
 **Major components:**
-1. `src/power-flow-card-plus.ts` — extend `setConfig()` with migration and extend `render()` with conditional MK8 layout and new node object construction
+1. `src/power-flow-card-cascade.ts` — extend `setConfig()` with migration and extend `render()` with conditional MK8 layout and new node object construction
 2. `src/components/gridMain.ts` (new) — renders `grid_main` circle; clone of `grid.ts` bound to `gridMain` state
 3. `src/components/heatpump.ts` (new) — renders heatpump circle with COP secondary display
 4. `src/components/flows/gridMainToGridHouse.ts` (new) — bidirectional horizontal flow using the `batteryGrid` two-circle pattern
@@ -170,13 +170,13 @@ Phases with standard patterns (skip additional research):
 ## Sources
 
 ### Primary (HIGH confidence)
-- Direct source analysis, `power-flow-card-plus` v0.2.6 (commit `0fcd3d2`) — all patterns, types, and energy balance logic
-- `src/power-flow-card-plus.ts` — main card class, `setConfig`, `render`, energy balance (lines 344-408)
+- Direct source analysis, `power-flow-card-cascade` v0.2.6 (commit `0fcd3d2`) — all patterns, types, and energy balance logic
+- `src/power-flow-card-cascade.ts` — main card class, `setConfig`, `render`, energy balance (lines 344-408)
 - `src/ui-editor/ui-editor.ts` — editor `setConfig`, `assert()`, `_valueChanged` handler
 - `src/ui-editor/schema/_schema-all.ts` — `cardConfigStruct` and entity schema definitions
 - `src/states/raw/base.ts` — `EntityType`, `getFieldInState`/`getFieldOutState` pattern
 - `src/type.ts` — `GridObject`, `NewDur`, and entity type definitions
-- `src/power-flow-card-plus-config.ts` — `ConfigEntities` and `Grid` interface
+- `src/power-flow-card-cascade-config.ts` — `ConfigEntities` and `Grid` interface
 - `src/components/flows/*.ts` — all 6 existing flow line SVG implementations
 - `src/style.ts` + `src/style/all.ts` — CSS custom properties and dynamic color computation
 - `package.json` — exact dependency versions

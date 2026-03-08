@@ -1,15 +1,15 @@
-# Power Flow Card Plus
+# Power Flow Card Cascade
 
 [![ko-fi support](https://img.shields.io/badge/support-me-ff5e5b?style=flat-square&logo=ko-fi)](https://ko-fi.com/flixlix)
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=flat-square)](https://github.com/hacs/integration)
-![GitHub total downloads](https://img.shields.io/github/downloads/flixlix/power-flow-card-plus/total?style=flat-square)
-![commit_activity](https://img.shields.io/github/commit-activity/y/flixlix/power-flow-card-plus?color=brightgreen&label=Commits&style=flat-square)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/flixlix/power-flow-card-plus?style=flat-square)
+![GitHub total downloads](https://img.shields.io/github/downloads/GuiHue/power-flow-card-cascade/total?style=flat-square)
+![commit_activity](https://img.shields.io/github/commit-activity/y/GuiHue/power-flow-card-cascade?color=brightgreen&label=Commits&style=flat-square)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/GuiHue/power-flow-card-cascade?style=flat-square)
 
 ![2023-03-26-13-04-07](https://user-images.githubusercontent.com/61006057/227771568-78497ecc-e863-46f2-b29e-e15c7c20a154.gif)
 
 > [!TIP]
-> Version 0.2.0 is out now! Check out the [new features](https://github.com/flixlix/power-flow-card-plus/releases/tag/v0.2.0)!
+> Version 0.2.0 is out now! Check out the [new features](https://github.com/GuiHue/power-flow-card-cascade/releases/tag/v0.2.0)!
 
 ## Additional Features / Enhancements
 
@@ -61,32 +61,32 @@ If this is your goal, check out the [Energy Flow Card Plus](https://github.com/f
 
 In case you want to watch a tutorial instead of reading through this very long readme 😅, I recommend the following videos:
 
-- [Power Flow Card Plus in Home Assistant - Jetzt noch besser? Anleitung from Smartzeug](https://youtu.be/PUOU5qdhMro) - _in german_, up to date with version 0.2.2
-- [Power Flow Card Plus for Home Assistant from Speak to the Geek](https://youtu.be/C4Zh35E9wJE?si=REuWZxmfF91G0Ht7) - _changes in indvidual configuration_
+- [Power Flow Card Cascade in Home Assistant - Jetzt noch besser? Anleitung from Smartzeug](https://youtu.be/PUOU5qdhMro) - _in german_, up to date with version 0.2.2
+- [Power Flow Card Cascade for Home Assistant from Speak to the Geek](https://youtu.be/C4Zh35E9wJE?si=REuWZxmfF91G0Ht7) - _changes in indvidual configuration_
 
 ## Installation
 
 ### HACS (recommended)
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=flixlix&repository=power-flow-card-plus&category=Dashboard)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=flixlix&repository=power-flow-card-cascade&category=Dashboard)
 
 This card is directly available through [HACS](https://hacs.xyz). To install HACS, follow these [instructions](https://hacs.xyz/docs/setup/prerequisites).
-After having HACS installed, simply search for "Power Flow Card Plus" and download it using the UI 🙂
+After having HACS installed, simply search for "Power Flow Card Cascade" and download it using the UI 🙂
 
 <details>
 <summary>Manual install</summary>
 
-1. Download and copy `power-flow-card-plus.js` from the [latest release](https://github.com/flixlix/power-flow-card-plus/releases/latest) into your `config/www` directory.
+1. Download and copy `power-flow-card-cascade.js` from the [latest release](https://github.com/GuiHue/power-flow-card-cascade/releases/latest) into your `config/www` directory.
 
 2. Add the resource reference as decribed below.
 
 ### Add resource reference
 
-If you configure Dashboards via YAML, add a reference to `power-flow-card-plus.js` inside your `configuration.yaml`:
+If you configure Dashboards via YAML, add a reference to `power-flow-card-cascade.js` inside your `configuration.yaml`:
 
 ```yaml
 resources:
-  - url: /local/power-flow-card-plus.js
+  - url: /local/power-flow-card-cascade.js
     type: module
 ```
 
@@ -97,8 +97,8 @@ Else, if you prefer the graphical editor, use the menu to add the resource:
 3. Click three dot icon
 4. Select Resources
 5. Hit (+ ADD RESOURCE) icon
-6. Enter URL `/local/power-flow-card-plus.js` and select type "JavaScript Module".
-   (Use `/hacsfiles/power-flow-card-plus/power-flow-card-plus.js` and select "JavaScript Module" for HACS install if HACS didn't do it already)
+6. Enter URL `/local/power-flow-card-cascade.js` and select type "JavaScript Module".
+   (Use `/hacsfiles/power-flow-card-cascade/power-flow-card-cascade.js` and select "JavaScript Module" for HACS install if HACS didn't do it already)
 
 </details>
 
@@ -113,7 +113,7 @@ Else, if you prefer the graphical editor, use the menu to add the resource:
 
 | Name                        | Type      |                 Default                  | Description                                                                                                                                                                                                              |
 | --------------------------- | --------- | :--------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| type                        | `string`  |               **required**               | `custom:power-flow-card-plus`.                                                                                                                                                                                           |
+| type                        | `string`  |               **required**               | `custom:power-flow-card-cascade`.                                                                                                                                                                                           |
 | entities                    | `object`  |               **required**               | One or more sensor entities, see [entities object](#entities-object) for additional entity options.                                                                                                                      |
 | title                       | `string`  |                                          | Shows a title at the top of the card.                                                                                                                                                                                    |
 | dashboard_link              | `string`  |                                          | Shows a link to an Energy Dashboard. Should be a url path to location of your choice. If you wanted to link to the built-in dashboard you would enter `/energy` for example.                                             |
@@ -416,7 +416,7 @@ In these examples I decided to use the Split entities option, but feel free to u
 #### Only Grid
 
 ```yaml
-type: custom:power-flow-card-plus
+type: custom:power-flow-card-cascade
 entities:
   grid:
     entity: sensor.grid_power
@@ -434,7 +434,7 @@ This should give you something like this:
 ##### Grid and Solar
 
 ```yaml
-type: custom:power-flow-card-plus
+type: custom:power-flow-card-cascade
 entities:
   grid:
     entity:
@@ -453,7 +453,7 @@ This should give you something like this:
 ##### Grid, Solar and Battery
 
 ```yaml
-type: custom:power-flow-card-plus
+type: custom:power-flow-card-cascade
 entities:
   grid:
     entity:
@@ -484,7 +484,7 @@ This should give you something like this:
 > This Configuration is a little bit random, it's just here to demonstrate the capabilities of this card.
 
 ```yaml
-type: custom:power-flow-card-plus
+type: custom:power-flow-card-cascade
 entities:
   home:
     entity: sensor.home_consumption
@@ -530,7 +530,7 @@ min_flow_rate: 0.9
 max_flow_rate: 6
 watt_threshold: 10000
 clickable_entities: true
-title: Power Flow Card Plus
+title: Power Flow Card Cascade
 ```
 
 This should give you something like this:
@@ -541,7 +541,7 @@ This should give you something like this:
 > This configuration demonstrates the split grid (house + main) and intermediate entities features.
 
 ```yaml
-type: custom:power-flow-card-plus
+type: custom:power-flow-card-cascade
 entities:
   solar:
     entity: sensor.solar_power
@@ -607,7 +607,7 @@ use_new_flow_rate_model: true
 ### Random Configurations
 
 ![2023-03-26-13-04-07](https://user-images.githubusercontent.com/61006057/227771568-78497ecc-e863-46f2-b29e-e15c7c20a154.gif)
-![recording_multi_indiv](https://github.com/flixlix/power-flow-card-plus/assets/61006057/337b921c-306c-4447-9c6f-1b4b72579731)
+![recording_multi_indiv](https://github.com/GuiHue/power-flow-card-cascade/assets/61006057/337b921c-306c-4447-9c6f-1b4b72579731)
 ![demo](https://user-images.githubusercontent.com/61006057/232316110-eff64095-e147-4462-abfc-961c88d5ada8.gif)
 ![demo_grid_solar_bat](https://user-images.githubusercontent.com/61006057/233212881-89af5af0-4b25-4a7c-9da1-008801129130.png)
 
@@ -617,7 +617,7 @@ use_new_flow_rate_model: true
 > I've made a lot of improvements in version 0.2 for the UI-Editor. Now each field has its own subpage, meaning there is now much less scrolling.
 > The biggest change in the editor is the fact that you can now add up to 4 individual devices, all through the UI! 🥳
 
-![ui-editor](https://github.com/flixlix/power-flow-card-plus/assets/61006057/a5d0cbb4-f430-4ba0-9c6f-8c93689206d7)
+![ui-editor](https://github.com/GuiHue/power-flow-card-cascade/assets/61006057/a5d0cbb4-f430-4ba0-9c6f-8c93689206d7)
 
 ### Flow Formula
 
@@ -674,11 +674,11 @@ At the end of the day these are two options and depending on what you're interes
 Here is my to-do list containing a few enhancements I am planning in adding. The ones at the top are bigger priorities, so they’ll probably be available before the ones at the bottom.
 
 - [x] Change Tap Action Behavior to be compatible with Browser Mod
-- Fill the circles [#89](https://github.com/flixlix/power-flow-card-plus/issues/89)
-- [x] More than two Individual Devices [#54](https://github.com/flixlix/power-flow-card-plus/issues/54)
-- More than one solar source [#23](https://github.com/flixlix/power-flow-card-plus/issues/23)
-- Display Connected/Disconnected status [#111](https://github.com/flixlix/power-flow-card-plus/issues/111)
-- Grid Feed In Circle [#119](https://github.com/flixlix/power-flow-card-plus/issues/119)
-- Improve performance [#144](https://github.com/flixlix/power-flow-card-plus/issues/144)
+- Fill the circles [#89](https://github.com/GuiHue/power-flow-card-cascade/issues/89)
+- [x] More than two Individual Devices [#54](https://github.com/GuiHue/power-flow-card-cascade/issues/54)
+- More than one solar source [#23](https://github.com/GuiHue/power-flow-card-cascade/issues/23)
+- Display Connected/Disconnected status [#111](https://github.com/GuiHue/power-flow-card-cascade/issues/111)
+- Grid Feed In Circle [#119](https://github.com/GuiHue/power-flow-card-cascade/issues/119)
+- Improve performance [#144](https://github.com/GuiHue/power-flow-card-cascade/issues/144)
 
 I am still just one person working on this project and obviously have other things going on in my life, so feel free to contribute to the project. You can also feel free to create a PR with a new feature and I'll try my best to review it 😊

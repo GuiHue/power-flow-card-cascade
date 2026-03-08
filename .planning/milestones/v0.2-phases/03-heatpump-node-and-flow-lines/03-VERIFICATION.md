@@ -42,9 +42,9 @@ human_verification:
 | 9 | Both flow lines hide entirely when sensor returns 0W (showLine returns false) | VERIFIED | Both flow files return `""` (not `html`) when show condition false (lines 46, 46); `showLine()` controls this |
 | 10 | Both flow lines respect display_zero_lines config via showLine() and styleLine() | VERIFIED | Both files import and call `showLine()` and `styleLine()` — verified lines 3-8 in each file |
 | 11 | Flows interface has heatpump? optional field and flowElement calls both heatpump flows | VERIFIED | `src/components/flows/index.ts` line 19: `heatpump?: any;`; lines 34-35: conditional calls with `heatpump ?` guard |
-| 12 | heatpump object constructed in render() and passed to flowElement | VERIFIED | `src/power-flow-card-plus.ts` lines 268-281: full heatpump object; lines 757-765: flowElement receives `heatpump` |
-| 13 | heatpumpFromGridHouse/Main computed via computeFlowRate in newDur | VERIFIED | `src/power-flow-card-plus.ts` lines 573-574: `heatpumpFromGridHouse: computeFlowRate(...)` and `heatpumpFromGridMain: computeFlowRate(...)` |
-| 14 | BAL-02: totalHomeConsumption formula is unchanged — no heatpump subtraction | VERIFIED | `src/power-flow-card-plus.ts` line 493: `Math.max(grid.state.toHome + (solar.state.toHome ?? 0) + (battery.state.toHome ?? 0), 0)` — heatpump absent |
+| 12 | heatpump object constructed in render() and passed to flowElement | VERIFIED | `src/power-flow-card-cascade.ts` lines 268-281: full heatpump object; lines 757-765: flowElement receives `heatpump` |
+| 13 | heatpumpFromGridHouse/Main computed via computeFlowRate in newDur | VERIFIED | `src/power-flow-card-cascade.ts` lines 573-574: `heatpumpFromGridHouse: computeFlowRate(...)` and `heatpumpFromGridMain: computeFlowRate(...)` |
+| 14 | BAL-02: totalHomeConsumption formula is unchanged — no heatpump subtraction | VERIFIED | `src/power-flow-card-cascade.ts` line 493: `Math.max(grid.state.toHome + (solar.state.toHome ?? 0) + (battery.state.toHome ?? 0), 0)` — heatpump absent |
 
 **Score:** 14/14 truths verified (automated)
 
@@ -61,7 +61,7 @@ human_verification:
 | `src/components/flows/gridHouseToHeatpump.ts` | Curved SVG flow from grid_house to heatpump | VERIFIED | Exports flowGridHouseToHeatpump; curved SVG (no flat-line class); uses showLine, styleLine, checkShouldShowDots |
 | `src/components/flows/gridMainToHeatpump.ts` | Curved SVG flow from grid_main to heatpump | VERIFIED | Exports flowGridMainToHeatpump; curved SVG (no flat-line class); guarded by gridMain?.has |
 | `src/components/flows/index.ts` | Flows interface with heatpump?, flowElement wired | VERIFIED | `heatpump?: any` in interface; both flow functions imported and conditionally called |
-| `src/power-flow-card-plus.ts` | heatpump object, bottom row slot, newDur entries, flowElement pass | VERIFIED | All four integration points present |
+| `src/power-flow-card-cascade.ts` | heatpump object, bottom row slot, newDur entries, flowElement pass | VERIFIED | All four integration points present |
 
 ---
 
@@ -74,9 +74,9 @@ human_verification:
 | `src/components/flows/index.ts` | `gridHouseToHeatpump.ts` | `heatpump ? flowGridHouseToHeatpump(...)` | WIRED | Line 34: conditional call present |
 | `src/components/flows/gridHouseToHeatpump.ts` | `showLine.ts` | `showLine(config, heatpump.flowFromGridHouse)` | WIRED | Line 13: used in show condition |
 | `src/components/flows/gridHouseToHeatpump.ts` | `newDur.heatpumpFromGridHouse` | animateMotion dur attribute | WIRED | Line 36: `dur="${newDur.heatpumpFromGridHouse}s"` |
-| `src/power-flow-card-plus.ts` | `src/components/heatpump.ts` | `heatpumpElement(this, this._config, { heatpump, entities })` | WIRED | Line 735: conditional call in bottom row |
-| `src/power-flow-card-plus.ts` | `src/states/raw/heatpump.ts` | heatpump object construction | WIRED | Lines 272-277: all 4 state resolvers called |
-| `src/power-flow-card-plus.ts` | `flowElement` | heatpump parameter passed | WIRED | Line 761: `heatpump,` in flowElement call |
+| `src/power-flow-card-cascade.ts` | `src/components/heatpump.ts` | `heatpumpElement(this, this._config, { heatpump, entities })` | WIRED | Line 735: conditional call in bottom row |
+| `src/power-flow-card-cascade.ts` | `src/states/raw/heatpump.ts` | heatpump object construction | WIRED | Lines 272-277: all 4 state resolvers called |
+| `src/power-flow-card-cascade.ts` | `flowElement` | heatpump parameter passed | WIRED | Line 761: `heatpump,` in flowElement call |
 | `heatpump.has gate` | bottom row condition | `battery.has \|\| heatpump.has \|\| checkHasBottomIndividual(...)` | WIRED | Line 733: condition includes `heatpump.has` |
 
 ---
@@ -102,7 +102,7 @@ human_verification:
 
 | File | Line | Pattern | Severity | Impact |
 |------|------|---------|----------|--------|
-| `src/components/heatpump.ts` | 73-78 | `displayValue` for consumption span uses `heatpump.unit`, `heatpump.unit_white_space`, `heatpump.decimals` | Info | These fields are not set on the heatpump object in `power-flow-card-plus.ts` — the object only has `state`, `cop`, `flowFromGridHouse`, `flowFromGridMain`, `icon`, `name`, `tap_action`. This means `unit`, `unit_white_space`, and `decimals` will be `undefined`. `displayValue` with `unit: undefined` triggers the kW/W threshold logic (correct for watts sensor), so this is benign for now but worth noting. |
+| `src/components/heatpump.ts` | 73-78 | `displayValue` for consumption span uses `heatpump.unit`, `heatpump.unit_white_space`, `heatpump.decimals` | Info | These fields are not set on the heatpump object in `power-flow-card-cascade.ts` — the object only has `state`, `cop`, `flowFromGridHouse`, `flowFromGridMain`, `icon`, `name`, `tap_action`. This means `unit`, `unit_white_space`, and `decimals` will be `undefined`. `displayValue` with `unit: undefined` triggers the kW/W threshold logic (correct for watts sensor), so this is benign for now but worth noting. |
 
 No blocker anti-patterns found. No TODO/FIXME/PLACEHOLDER comments in any phase-3 files. No empty stub returns (the `return null` in `getHeatpumpCopState` is intentional null-signaling, not a stub).
 

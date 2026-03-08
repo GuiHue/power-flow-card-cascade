@@ -1,4 +1,4 @@
-import { PowerFlowCardPlusConfig } from "../power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "../power-flow-card-cascade-config";
 import { IndividualObject } from "../states/raw/individual/getIndividualObject";
 
 const filterUnusedIndividualObjs = (individualObjs: IndividualObject[]): IndividualObject[] => {

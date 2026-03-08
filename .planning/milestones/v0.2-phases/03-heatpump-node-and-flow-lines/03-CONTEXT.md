@@ -84,8 +84,8 @@ Render a heatpump consumption node with COP display and two animated monodirecti
 ### Integration Points
 - `src/type.ts`: Add `heatpumpFromGridHouse: number` and `heatpumpFromGridMain: number` to `NewDur`
 - `src/components/flows/index.ts`: Import and call new heatpump flow functions
-- `src/power-flow-card-plus.ts` render(): Add heatpump object construction, insert heatpumpElement into bottom row between spacer and battery, add heatpump flow lines to flowElement call, compute new NewDur entries
-- `HeatpumpEntity` config type already exists in `power-flow-card-plus-config.ts` — no config changes needed
+- `src/power-flow-card-cascade.ts` render(): Add heatpump object construction, insert heatpumpElement into bottom row between spacer and battery, add heatpump flow lines to flowElement call, compute new NewDur entries
+- `HeatpumpEntity` config type already exists in `power-flow-card-cascade-config.ts` — no config changes needed
 
 </code_context>
 

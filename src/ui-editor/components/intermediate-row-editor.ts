@@ -8,7 +8,7 @@ import { EntityConfig, LovelaceRowConfig } from "../types/entity-rows";
 import { fireEvent } from "../utils/fire_event";
 import { sortableStyles } from "../utils/sortable_styles";
 import { loadSortable, SortableInstance } from "../utils/sortable.ondemand";
-import { PowerFlowCardPlusConfig } from "@/power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 import { loadHaForm } from "@/ui-editor/utils/loadHAForm";
 import { intermediateSchema } from "@/ui-editor/schema/intermediate";
 import localize from "@/localize/localize";
@@ -17,7 +17,7 @@ import localize from "@/localize/localize";
 export class IntermediateRowEditor extends LitElement {
   @property({ attribute: false }) protected hass?: HomeAssistant;
 
-  @property({ attribute: false }) protected config?: PowerFlowCardPlusConfig;
+  @property({ attribute: false }) protected config?: PowerFlowCardCascadeConfig;
 
   @property({ attribute: false }) protected entities?: LovelaceRowConfig[];
 

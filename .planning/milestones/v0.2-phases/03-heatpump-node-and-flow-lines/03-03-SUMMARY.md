@@ -6,14 +6,14 @@ tags: [heatpump, layout, css, svg, cop, flow-values]
 dependency_graph:
   requires: [03-01, 03-02, 03-03-initial]
   provides: [correct-heatpump-layout, cop-display-fixed, flow-values-in-bubble, updated-svg-paths]
-  affects: [src/power-flow-card-plus.ts, src/style.ts, src/components/heatpump.ts, src/components/flows/gridHouseToHeatpump.ts, src/components/flows/gridMainToHeatpump.ts]
+  affects: [src/power-flow-card-cascade.ts, src/style.ts, src/components/heatpump.ts, src/components/flows/gridHouseToHeatpump.ts, src/components/flows/gridMainToHeatpump.ts]
 tech_stack:
   added: []
   patterns: [flex-end alignment, toFixed formatting, lit html conditional spans, SVG cubic bezier]
 key_files:
   created: []
   modified:
-    - src/power-flow-card-plus.ts
+    - src/power-flow-card-cascade.ts
     - src/style.ts
     - src/components/heatpump.ts
     - src/components/flows/gridHouseToHeatpump.ts
@@ -43,7 +43,7 @@ Post-visual-inspection fixes for the Phase 3 heatpump node implementation. Six i
 
 | Task | Description | Commit | Files |
 |------|-------------|--------|-------|
-| 1 | Layout + CSS: heatpump col-1, battery col-2, flex-end pin | 5e7c73c | power-flow-card-plus.ts, style.ts |
+| 1 | Layout + CSS: heatpump col-1, battery col-2, flex-end pin | 5e7c73c | power-flow-card-cascade.ts, style.ts |
 | 2 | COP unit fix: toFixed(1) instead of displayValue | a2097ac | heatpump.ts |
 | 3 | Flow values in bubble: flowFromGridHouse + flowFromGridMain spans | d8d3a66 | heatpump.ts |
 | 4 | SVG paths: updated for heatpump at col-1 (x≈20) position | 30d2222 | gridHouseToHeatpump.ts, gridMainToHeatpump.ts |
@@ -56,7 +56,7 @@ Post-visual-inspection fixes for the Phase 3 heatpump node implementation. Six i
 - **Found during:** User visual inspection after 03-03 initial implementation
 - **Issue:** Extra leading `<div class="spacer"></div>` before heatpump in bottom row pushed battery to col-3 instead of col-2, breaking solar/battery column alignment
 - **Fix:** Removed the unconditional leading spacer; heatpump's `has ? element : spacer` conditional now occupies col-1
-- **Files modified:** `src/power-flow-card-plus.ts`
+- **Files modified:** `src/power-flow-card-cascade.ts`
 - **Commit:** 5e7c73c
 
 **2. [Rule 1 - Bug] Heatpump vertical alignment (Issue 2)**
@@ -102,7 +102,7 @@ Post-visual-inspection fixes for the Phase 3 heatpump node implementation. Six i
 ## Self-Check
 
 ### Files Exist
-- `src/power-flow-card-plus.ts` — modified (leading spacer removed)
+- `src/power-flow-card-cascade.ts` — modified (leading spacer removed)
 - `src/style.ts` — modified (.circle-container.heatpump rule filled)
 - `src/components/heatpump.ts` — modified (COP toFixed, flow value spans)
 - `src/components/flows/gridMainToHeatpump.ts` — modified (M20,50 v50)

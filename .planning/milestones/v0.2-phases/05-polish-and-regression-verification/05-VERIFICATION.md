@@ -29,7 +29,7 @@ human_verification:
 | 1 | Card renders correctly at 300px, 420px, and 600px widths with MK8 config (no overflow, no overlap, no truncation) | ? UNCERTAIN | Dynamic SVG coordinate math verified correct by code audit and formula derivation. `flex-shrink: 0` added to `.spacer` and `.circle-container` in `src/style.ts` (lines 98, 120). Actual visual rendering at these widths requires browser/HA runtime. |
 | 2 | Card with no `entities.grid.main` configured is pixel-identical to v0.2.6 output | ? UNCERTAIN | Code audit confirms non-MK8 3-col render path is unchanged: `computeFlowGeometry(false, false)` returns numCols=3, all `gridMain.has` conditionals emit empty strings, dynamic coordinates at max rowMaxWidth=360px produce leftReach=-100/rightReach=180/straightLineLength=280 -- identical to prior hardcoded values. Visual pixel-identical confirmation requires human. |
 | 3 | Edge case configurations work without errors: no battery, no solar, with individual devices, power outage on each meter independently | ? UNCERTAIN | Code audit confirms guards in place: `battery.has`, `solar.has`, `grid.powerOutage.isOutage`, `showLine()` all gate their respective SVG paths and state accesses (lines 440-501, 882-936 in main card). No uncaught property access patterns found. Requires HA runtime to confirm zero console errors. |
-| 4 | `pnpm typecheck && pnpm format:write && pnpm test` passes with full test suite green | ✓ VERIFIED | Ran live: typecheck exits 0, format:check exits 0 ("All matched files use Prettier code style!"), test exits 0 (20/20 tests pass in 0.481s). Build also passes -- `dist/power-flow-card-plus.js` exists (267,428 bytes, built 2026-03-04). |
+| 4 | `pnpm typecheck && pnpm format:write && pnpm test` passes with full test suite green | ✓ VERIFIED | Ran live: typecheck exits 0, format:check exits 0 ("All matched files use Prettier code style!"), test exits 0 (20/20 tests pass in 0.481s). Build also passes -- `dist/power-flow-card-cascade.js` exists (267,428 bytes, built 2026-03-04). |
 
 **Score:** 1/4 automated truths verified; 3/4 require human visual confirmation (all SC-01/SC-02/SC-03 were acknowledged as manual-only from phase inception per RESEARCH.md and VALIDATION.md)
 
@@ -39,17 +39,17 @@ human_verification:
 |----------|----------|--------|---------|
 | `src/utils/flowGeometry.ts` | Only `FlowGeometry` interface and `computeFlowGeometry()` remain (no `flowStyle`, `flowStyleVertical`, `flowPixelWidth`) | ✓ VERIFIED | File is 45 lines. Contains exactly `FlowGeometry` interface (lines 1-14) and `computeFlowGeometry()` function (lines 16-45). All three dead functions confirmed absent. |
 | `src/style.ts` | `.lines` CSS block removed; `flex-shrink: 0` on `.spacer` and `.circle-container` | ✓ VERIFIED | No `.lines` pattern found in file. `flex-shrink: 0` present at line 98 (`.circle-container`) and line 120 (`.spacer`). |
-| `src/power-flow-card-plus.ts` | No `flowElement` import/call, no `isCardWideEnough`; dynamic `gapBetweenCircles` computation present | ✓ VERIFIED | No `flowElement`, `flowStyle`, `flowPixelWidth`, or `isCardWideEnough` found anywhere in `src/`. Dynamic coords at lines 681-685: `actualRowWidth`, `gapBetweenCircles`, `leftReach`, `rightReach`, `straightLineLength`. 16 dynamic template references confirmed. |
+| `src/power-flow-card-cascade.ts` | No `flowElement` import/call, no `isCardWideEnough`; dynamic `gapBetweenCircles` computation present | ✓ VERIFIED | No `flowElement`, `flowStyle`, `flowPixelWidth`, or `isCardWideEnough` found anywhere in `src/`. Dynamic coords at lines 681-685: `actualRowWidth`, `gapBetweenCircles`, `leftReach`, `rightReach`, `straightLineLength`. 16 dynamic template references confirmed. |
 | `src/components/flows/` | Entire directory deleted (all 9 flow components + `index.ts`) | ✓ VERIFIED | Directory does not exist (`ls` returns "No such file or directory"). |
-| `dist/power-flow-card-plus.js` | Production build output | ✓ VERIFIED | File exists, 267,428 bytes, dated 2026-03-04 22:01 -- after the last source commit (2026-03-04 21:24 UTC+1). |
+| `dist/power-flow-card-cascade.js` | Production build output | ✓ VERIFIED | File exists, 267,428 bytes, dated 2026-03-04 22:01 -- after the last source commit (2026-03-04 21:24 UTC+1). |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| `src/power-flow-card-plus.ts` | `computeFlowGeometry` | `import from ./utils/flowGeometry` | ✓ WIRED | Line 49: `import { computeFlowGeometry } from "./utils/flowGeometry"`. Used at line 675 in render(). |
-| `src/power-flow-card-plus.ts` | `geo.numCols` | dynamic path coordinate calculation | ✓ WIRED | Line 682: `geo.numCols > 1 ? (actualRowWidth - geo.numCols * 80) / (geo.numCols - 1) : 0`. Used in `gapBetweenCircles` which feeds all 16 SVG path `d=` attributes. |
-| `src/power-flow-card-plus.ts` | `this._width` | actual card width measurement | ✓ WIRED | Line 681: `const actualRowWidth = Math.min(this._width \|\| geo.rowMaxWidth, geo.rowMaxWidth)`. `this._width` set at line 1090 from rendered `.card-content` element. |
+| `src/power-flow-card-cascade.ts` | `computeFlowGeometry` | `import from ./utils/flowGeometry` | ✓ WIRED | Line 49: `import { computeFlowGeometry } from "./utils/flowGeometry"`. Used at line 675 in render(). |
+| `src/power-flow-card-cascade.ts` | `geo.numCols` | dynamic path coordinate calculation | ✓ WIRED | Line 682: `geo.numCols > 1 ? (actualRowWidth - geo.numCols * 80) / (geo.numCols - 1) : 0`. Used in `gapBetweenCircles` which feeds all 16 SVG path `d=` attributes. |
+| `src/power-flow-card-cascade.ts` | `this._width` | actual card width measurement | ✓ WIRED | Line 681: `const actualRowWidth = Math.min(this._width \|\| geo.rowMaxWidth, geo.rowMaxWidth)`. `this._width` set at line 1090 from rendered `.card-content` element. |
 | `src/style.ts` `flex-shrink: 0` | `.circle-container` and `.spacer` | CSS rule | ✓ WIRED | Line 98 (`.circle-container`) and line 120 (`.spacer`). Both present and correct. |
 
 ### Requirements Coverage
@@ -69,7 +69,7 @@ Phase 5 has no v1 requirement IDs from REQUIREMENTS.md (it is declared as "cross
 
 | File | Pattern | Severity | Impact |
 |------|---------|----------|--------|
-| None detected | -- | -- | All key files scanned: no TODO/FIXME/HACK/PLACEHOLDER comments; no `return null`/empty stub patterns; no `console.log` only implementations found in `src/power-flow-card-plus.ts`, `src/utils/flowGeometry.ts`, `src/style.ts`. |
+| None detected | -- | -- | All key files scanned: no TODO/FIXME/HACK/PLACEHOLDER comments; no `return null`/empty stub patterns; no `console.log` only implementations found in `src/power-flow-card-cascade.ts`, `src/utils/flowGeometry.ts`, `src/style.ts`. |
 
 ### Human Verification Required
 

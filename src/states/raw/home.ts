@@ -1,5 +1,5 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { getSecondaryState } from "./base";
-import { PowerFlowCardPlusConfig } from "@/power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 
-export const getHomeSecondaryState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => getSecondaryState(hass, config, "home");
+export const getHomeSecondaryState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => getSecondaryState(hass, config, "home");

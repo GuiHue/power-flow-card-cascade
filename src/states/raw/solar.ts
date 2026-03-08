@@ -1,11 +1,11 @@
 import { HomeAssistant } from "custom-card-helpers";
-import { PowerFlowCardPlusConfig } from "@/power-flow-card-plus-config";
+import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 import { isEntityInverted } from "../utils/isEntityInverted";
 import { getEntityStateWatts } from "../utils/getEntityStateWatts";
 import { onlyNegative, onlyPositive } from "../utils/negativePositive";
 import { getSecondaryState } from "./base";
 
-export const getSolarState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getSolarState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const entity = config.entities.solar?.entity;
 
   if (entity === undefined) return null;
@@ -17,4 +17,4 @@ export const getSolarState = (hass: HomeAssistant, config: PowerFlowCardPlusConf
   return onlyPositive(solarStateWatts);
 };
 
-export const getSolarSecondaryState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => getSecondaryState(hass, config, "solar");
+export const getSolarSecondaryState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => getSecondaryState(hass, config, "solar");

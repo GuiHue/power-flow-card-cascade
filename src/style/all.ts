@@ -1,5 +1,5 @@
-import { PowerFlowCardPlus } from "../power-flow-card-plus";
-import { ConfigEntities } from "../power-flow-card-plus-config";
+import { PowerFlowCardCascade } from "../power-flow-card-cascade";
+import { ConfigEntities } from "../power-flow-card-cascade-config";
 import { IndividualObject } from "../states/raw/individual/getIndividualObject";
 import { IndividualDeviceType } from "../type";
 import { convertColorListToHex } from "../utils/convertColor";
@@ -12,7 +12,7 @@ interface AllDynamicStyles {
 }
 
 export const allDynamicStyles = (
-  main: PowerFlowCardPlus,
+  main: PowerFlowCardCascade,
   {
     grid,
     entities,

@@ -188,7 +188,7 @@ This means at max width the coordinates are identical to the current hardcoded v
 
 ### Current SVG Path Pattern (Spacer-Relative)
 ```typescript
-// Source: src/power-flow-card-plus.ts, line 828
+// Source: src/power-flow-card-cascade.ts, line 828
 // Horizontal line in Col D spacer (between grid/solar column and home column)
 <svg width="80" height="80" style="position:absolute;top:0;left:0;overflow:visible;pointer-events:none">
   <path d="M-100 40 h280" id="grid-to-home"
@@ -230,7 +230,7 @@ const topY = -80; // extends up into solar's circle-container height
 
 ### Edge Case: Right-Column Individual Curves
 ```typescript
-// Source: src/power-flow-card-plus.ts, line 927
+// Source: src/power-flow-card-cascade.ts, line 927
 // Right individual spacer (Col F when >2 individuals)
 // This uses mirrored coordinates from the solar/battery curved patterns
 <path d="M35 -80 V-5 A40,40 0 0,1 -5 35 H-120" id="ind-right-top-to-home" ... />
@@ -304,7 +304,7 @@ None -- existing test infrastructure covers all automated phase requirements. Th
 ### Primary (HIGH confidence)
 - Direct codebase analysis of all source files in `src/`, `__tests__/`, configuration files
 - `pnpm typecheck`, `pnpm test`, `pnpm format:check` -- executed and results observed
-- Git history (`git log main..HEAD`, `git diff main -- src/power-flow-card-plus.ts`)
+- Git history (`git log main..HEAD`, `git diff main -- src/power-flow-card-cascade.ts`)
 
 ### Secondary (MEDIUM confidence)
 - CONTEXT.md user-reported bugs (battery-to-grid misalignment, gridMain-to-gridHouse misalignment) -- reported but not yet independently reproduced in this research

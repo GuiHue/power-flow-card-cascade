@@ -27,10 +27,10 @@ tech-stack:
 key-files:
   created: []
   modified:
-    - src/power-flow-card-plus-config.ts
+    - src/power-flow-card-cascade-config.ts
     - src/type.ts
     - src/states/raw/grid.ts
-    - src/power-flow-card-plus.ts
+    - src/power-flow-card-cascade.ts
     - src/components/grid.ts
     - src/style/all.ts
     - src/ui-editor/ui-editor.ts
@@ -87,10 +87,10 @@ Each task was committed atomically:
 
 ## Files Created/Modified
 
-- `src/power-flow-card-plus-config.ts` - Added GridEntities and HeatpumpEntity interfaces; updated ConfigEntities.grid and ConfigEntities.heatpump; updated ConfigEntity union
+- `src/power-flow-card-cascade-config.ts` - Added GridEntities and HeatpumpEntity interfaces; updated ConfigEntities.grid and ConfigEntities.heatpump; updated ConfigEntity union
 - `src/type.ts` - Added "heatpump" to EntityType union
 - `src/states/raw/grid.ts` - Complete rewrite to read from `.house` sub-key with inline imports
-- `src/power-flow-card-plus.ts` - Added `gridConfig = entities.grid as any` local; fixed all grid property accesses, setConfig validation, display_zero_tolerance, and template connection methods
+- `src/power-flow-card-cascade.ts` - Added `gridConfig = entities.grid as any` local; fixed all grid property accesses, setConfig validation, display_zero_tolerance, and template connection methods
 - `src/components/grid.ts` - Added `gridConfig = entities.grid as any` local; fixed all grid property accesses in HTML template
 - `src/style/all.ts` - Cast `entities.grid as any` for `color_value` access
 - `src/ui-editor/ui-editor.ts` - Cast `entities[page] as any` for `icon` access
@@ -109,9 +109,9 @@ Each task was committed atomically:
 
 **1. [Rule 1 - Bug] Fixed cascade TypeScript errors in 6 files not originally in plan scope**
 - **Found during:** Task 3 (Fix grid state accessors)
-- **Issue:** Changing `ConfigEntities.grid` from `Grid` to `GridEntities` produced 75+ TypeScript errors in `power-flow-card-plus.ts`, `components/grid.ts`, `style/all.ts`, `ui-editor.ts`, `computeFieldAttributes.ts`, and `displayNonFossilState.ts` — all accessing `.entity`, `.power_outage`, `.secondary_info`, etc. that no longer exist on `GridEntities`
+- **Issue:** Changing `ConfigEntities.grid` from `Grid` to `GridEntities` produced 75+ TypeScript errors in `power-flow-card-cascade.ts`, `components/grid.ts`, `style/all.ts`, `ui-editor.ts`, `computeFieldAttributes.ts`, and `displayNonFossilState.ts` — all accessing `.entity`, `.power_outage`, `.secondary_info`, etc. that no longer exist on `GridEntities`
 - **Fix:** Added `(entities.grid as any)` casts at all call sites (Phase 1 approved pattern). In computeFieldAttributes.ts, cast the entire `field` parameter to `any` because `HeatpumpEntity` added to `ConfigEntity` union also lacked `icon`/`use_metadata`/`name`/`entity`
-- **Files modified:** src/power-flow-card-plus.ts, src/components/grid.ts, src/style/all.ts, src/ui-editor/ui-editor.ts, src/utils/computeFieldAttributes.ts, src/utils/displayNonFossilState.ts
+- **Files modified:** src/power-flow-card-cascade.ts, src/components/grid.ts, src/style/all.ts, src/ui-editor/ui-editor.ts, src/utils/computeFieldAttributes.ts, src/utils/displayNonFossilState.ts
 - **Verification:** `pnpm typecheck` exits 0, `pnpm test` passes 13/13
 - **Committed in:** `19eabac` (Task 3 commit)
 

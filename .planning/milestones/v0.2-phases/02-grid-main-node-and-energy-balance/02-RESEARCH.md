@@ -91,7 +91,7 @@ The most discretion-requiring work is the SVG path for the grid_main ↔ grid_ho
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
 | custom-card-helpers | Already in project | `HomeAssistant` type | State resolvers need hass to read entity state |
-| @/power-flow-card-plus-config | internal | Config types | Every component receives typed config |
+| @/power-flow-card-cascade-config | internal | Config types | Every component receives typed config |
 
 **No new npm packages are needed for this phase.**
 
@@ -114,7 +114,7 @@ src/
 │   └── raw/
 │       └── grid.ts              # update — add getGridMainConsumptionState, getGridMainProductionState, getGridMainSecondaryState
 ├── type.ts                      # update — add gridMainToGridHouse to NewDur
-└── power-flow-card-plus.ts      # update — gridMain object, render() row changes, top-row nonFossil placement
+└── power-flow-card-cascade.ts      # update — gridMain object, render() row changes, top-row nonFossil placement
 ```
 
 ### Pattern 1: State Resolver (read from .main sub-key)
@@ -123,7 +123,7 @@ Directly mirrors the Phase 1 pattern in `src/states/raw/grid.ts`.
 
 ```typescript
 // src/states/raw/grid.ts — add below existing grid_house functions
-export const getGridMainConsumptionState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getGridMainConsumptionState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const gridMain = (config.entities.grid as any)?.main;
   const entity = gridMain?.entity;
   if (entity === undefined) return null;
@@ -138,7 +138,7 @@ export const getGridMainConsumptionState = (hass: HomeAssistant, config: PowerFl
   return getEntityStateWatts(hass, (entity as { production: string }).production);
 };
 
-export const getGridMainProductionState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getGridMainProductionState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const gridMain = (config.entities.grid as any)?.main;
   const entity = gridMain?.entity;
   if (entity === undefined) return null;
@@ -163,8 +163,8 @@ Fork `src/components/grid.ts` into `src/components/gridMain.ts`. The function si
 ```typescript
 // src/components/gridMain.ts
 export const gridMainElement = (
-  main: PowerFlowCardPlus,
-  config: PowerFlowCardPlusConfig,
+  main: PowerFlowCardCascade,
+  config: PowerFlowCardCascadeConfig,
   { entities, gridMain, templatesObj }: { entities: ConfigEntities; gridMain: any; templatesObj: TemplatesObj }
 ) => {
   const gridMainConfig = (entities.grid as any)?.main;
@@ -185,7 +185,7 @@ Combines:
 
 ```typescript
 // src/components/flows/gridMainToGridHouse.ts
-export const flowGridMainToGridHouse = (config: PowerFlowCardPlusConfig, { battery, grid, gridMain, solar, newDur }: FlowsWithGridMain) => {
+export const flowGridMainToGridHouse = (config: PowerFlowCardCascadeConfig, { battery, grid, gridMain, solar, newDur }: FlowsWithGridMain) => {
   const showImport = showLine(config, gridMain.state.fromGridMain);
   const showExport = showLine(config, gridMain.state.toGridMain);
   return gridMain.has && grid.has && (showImport || showExport)
@@ -221,7 +221,7 @@ export const flowGridMainToGridHouse = (config: PowerFlowCardPlusConfig, { batte
 
 ### Pattern 4: gridMain Object in render()
 
-Mirrors the `grid` object construction in `power-flow-card-plus.ts`. The `gridMain` object is built after `grid` using the same field pattern.
+Mirrors the `grid` object construction in `power-flow-card-cascade.ts`. The `gridMain` object is built after `grid` using the same field pattern.
 
 ```typescript
 const gridMainConfig = (entities.grid as any)?.main;
@@ -372,7 +372,7 @@ The downward SVG connector in `nonFossilElement` (`M40 -10 v40`) points straight
 
 ```typescript
 // src/states/raw/grid.ts (as of Phase 1)
-export const getGridConsumptionState = (hass: HomeAssistant, config: PowerFlowCardPlusConfig) => {
+export const getGridConsumptionState = (hass: HomeAssistant, config: PowerFlowCardCascadeConfig) => {
   const gridHouse = (config.entities.grid as any)?.house;
   const entity = gridHouse?.entity;
   if (entity === undefined) return null;
@@ -408,7 +408,7 @@ svg`<circle r="1" class="battery-from-grid" vector-effect="non-scaling-stroke">
 d="M0,${battery.has ? 50 : solar.has ? 56 : 53} H100"
 ```
 
-### Verified: Middle row rendering with conditional slot (from power-flow-card-plus.ts)
+### Verified: Middle row rendering with conditional slot (from power-flow-card-cascade.ts)
 
 ```typescript
 <div class="row">
@@ -495,10 +495,10 @@ export const flowElement = (config, { battery, grid, individual, solar, newDur }
 - Direct codebase inspection: `src/components/flows/batteryGrid.ts` — bidirectional animateMotion pattern
 - Direct codebase inspection: `src/components/nonFossil.ts` — non-fossil bubble component
 - Direct codebase inspection: `src/states/raw/grid.ts` — Phase 1 state resolver pattern
-- Direct codebase inspection: `src/power-flow-card-plus.ts` — render() structure, object construction, row layout
+- Direct codebase inspection: `src/power-flow-card-cascade.ts` — render() structure, object construction, row layout
 - Direct codebase inspection: `src/style.ts` — CSS layout rules for `.row`, `.circle-container`, `.spacer`
 - Direct codebase inspection: `src/type.ts` — `NewDur`, `GridObject`, `ComboEntity` types
-- Direct codebase inspection: `src/power-flow-card-plus-config.ts` — `GridEntities`, `Grid` interface
+- Direct codebase inspection: `src/power-flow-card-cascade-config.ts` — `GridEntities`, `Grid` interface
 
 ### Secondary (MEDIUM confidence)
 

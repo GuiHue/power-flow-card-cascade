@@ -64,17 +64,17 @@ Add a `grid_main` node (Messkonzept 8 second/main meter) that sits to the left o
 - `src/states/raw/grid.ts`: Already updated in Phase 1 to read from `.house` sub-key — `grid_main` state resolver will follow the same pattern reading from `.main`
 
 ### Established Patterns
-- All node components are pure functions: `(main: PowerFlowCardPlus, config, { entities, stateObj, ... }) => html\`...\``
+- All node components are pure functions: `(main: PowerFlowCardCascade, config, { entities, stateObj, ... }) => html\`...\``
 - Flow lines live in `src/components/flows/` as individual files, exported from `index.ts`
-- Middle row template in `power-flow-card-plus.ts` render(): `${grid.has ? gridElement(...) : spacer}` — same conditional pattern for grid_main
+- Middle row template in `power-flow-card-cascade.ts` render(): `${grid.has ? gridElement(...) : spacer}` — same conditional pattern for grid_main
 - State values are computed in the `render()` method before being passed to components — `fromGridMain`/`toGridMain` computed there
 
 ### Integration Points
-- `src/power-flow-card-plus.ts` render(): Middle row needs a new slot to the left of `gridElement` for `gridMainElement`
-- `src/power-flow-card-plus.ts` render(): Top row `nonFossilElement` placement — conditional on whether grid_main is configured
+- `src/power-flow-card-cascade.ts` render(): Middle row needs a new slot to the left of `gridElement` for `gridMainElement`
+- `src/power-flow-card-cascade.ts` render(): Top row `nonFossilElement` placement — conditional on whether grid_main is configured
 - `src/components/flows/index.ts`: New flow function exported here
 - `src/states/raw/grid.ts`: New `getGridMainConsumptionState` / `getGridMainProductionState` functions needed
-- `src/power-flow-card-plus-config.ts`: `GridEntities.main` already typed as `Grid | undefined` from Phase 1
+- `src/power-flow-card-cascade-config.ts`: `GridEntities.main` already typed as `Grid | undefined` from Phase 1
 
 </code_context>
 

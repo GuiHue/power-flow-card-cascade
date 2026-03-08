@@ -21,7 +21,7 @@ tech-stack:
 key-files:
   created: []
   modified:
-    - src/power-flow-card-plus.ts
+    - src/power-flow-card-cascade.ts
     - src/style.ts
 
 key-decisions:
@@ -67,7 +67,7 @@ Each task was committed atomically:
 
 ## Files Created/Modified
 - `src/style.ts` - Added flex-shrink: 0 to .spacer and .circle-container
-- `src/power-flow-card-plus.ts` - Dynamic SVG path coordinate computation (gapBetweenCircles, leftReach, rightReach, straightLineLength) replacing all hardcoded M-100/h280/H160/H-120 values
+- `src/power-flow-card-cascade.ts` - Dynamic SVG path coordinate computation (gapBetweenCircles, leftReach, rightReach, straightLineLength) replacing all hardcoded M-100/h280/H160/H-120 values
 
 ## Decisions Made
 - Used formula leftReach = -(gapBetweenCircles + 40), rightReach = 80 + gapBetweenCircles + 40, matching the flex space-between gap calculation
@@ -90,7 +90,7 @@ None - no external service configuration required.
 
 ## Self-Check: PASSED
 
-- FOUND: src/power-flow-card-plus.ts
+- FOUND: src/power-flow-card-cascade.ts
 - FOUND: src/style.ts
 - FOUND: 05-02-SUMMARY.md
 - FOUND: commit 6f093af
