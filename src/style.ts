@@ -376,6 +376,7 @@ export const styles = css`
   }
   .intermediate .circle {
     border-color: var(--energy-grid-consumption-color, #488fc2);
+    overflow: visible;
   }
   .intermediate ha-icon:not(.small) {
     padding-bottom: 0;
