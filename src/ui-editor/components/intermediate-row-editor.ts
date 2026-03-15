@@ -13,7 +13,7 @@ import { loadHaForm } from "@/ui-editor/utils/loadHAForm";
 import { intermediateSchema } from "@/ui-editor/schema/intermediate";
 import localize from "@/localize/localize";
 
-@customElement("intermediate-row-editor")
+@customElement("cascade-intermediate-row-editor")
 export class IntermediateRowEditor extends LitElement {
   @property({ attribute: false }) protected hass?: HomeAssistant;
 
@@ -310,6 +310,6 @@ export class IntermediateRowEditor extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "intermediate-row-editor": IntermediateRowEditor;
+    "cascade-intermediate-row-editor": IntermediateRowEditor;
   }
 }

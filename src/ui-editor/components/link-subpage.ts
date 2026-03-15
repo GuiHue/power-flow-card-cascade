@@ -3,7 +3,7 @@ import { css, CSSResultGroup, html, LitElement, TemplateResult } from "lit";
 import { customElement, property, query } from "lit-element";
 import { fireEvent } from "custom-card-helpers";
 
-@customElement("link-subpage")
+@customElement("cascade-link-subpage")
 export class LinkSubpage extends LitElement {
   @property({ type: String }) path!: string;
 
@@ -114,7 +114,7 @@ export class LinkSubpage extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "link-subpage": LinkSubpage;
+    "cascade-link-subpage": LinkSubpage;
   }
 
   // for fire event

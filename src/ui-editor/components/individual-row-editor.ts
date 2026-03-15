@@ -26,7 +26,7 @@ declare global {
   }
 }
 
-@customElement("individual-row-editor")
+@customElement("cascade-individual-row-editor")
 export class IndividualRowEditor extends LitElement {
   @property({ attribute: false }) protected hass?: HomeAssistant;
 
@@ -337,6 +337,6 @@ export class IndividualRowEditor extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "individual-row-editor": IndividualRowEditor;
+    "cascade-individual-row-editor": IndividualRowEditor;
   }
 }

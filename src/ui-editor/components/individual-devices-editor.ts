@@ -31,7 +31,7 @@ export function processEditorEntities(entities): IndividualDeviceType[] {
   });
 }
 
-@customElement("individual-devices-editor")
+@customElement("cascade-individual-devices-editor")
 export class IndividualDevicesEditor extends LitElement {
   public hass!: HomeAssistant;
   @property({ attribute: false }) public config!: PowerFlowCardCascadeConfig;
@@ -60,14 +60,14 @@ export class IndividualDevicesEditor extends LitElement {
     }
 
     return html`
-      <individual-row-editor
+      <cascade-individual-row-editor
         .hass=${this.hass}
         .config=${this.config}
         .entities=${this._configEntities || []}
         @open-sub-element-editor=${this._editDetailElement}
         @entities-changed=${this._entitiesChanged}
         style="width: 100%;"
-      ></individual-row-editor>
+      ></cascade-individual-row-editor>
     `;
   }
 
@@ -110,6 +110,6 @@ export class IndividualDevicesEditor extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "individual-devices-editor": IndividualDevicesEditor;
+    "cascade-individual-devices-editor": IndividualDevicesEditor;
   }
 }

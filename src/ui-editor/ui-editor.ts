@@ -129,15 +129,15 @@ export class PowerFlowCardCascadeEditor extends LitElement implements LovelaceCa
     if (this._currentConfigPage !== null) {
       if (this._currentConfigPage === "individual") {
         return html`
-          <subpage-header @go-back=${this._goBack} page=${this._currentConfigPage}> </subpage-header>
-          <individual-devices-editor .hass=${this.hass} .config=${this._config} @config-changed=${this._valueChanged}></individual-devices-editor>
+          <cascade-subpage-header @go-back=${this._goBack} page=${this._currentConfigPage}> </cascade-subpage-header>
+          <cascade-individual-devices-editor .hass=${this.hass} .config=${this._config} @config-changed=${this._valueChanged}></cascade-individual-devices-editor>
         `;
       }
 
       if (this._currentConfigPage === "intermediate") {
         return html`
-          <subpage-header @go-back=${this._goBack} page=${this._currentConfigPage}> </subpage-header>
-          <intermediate-devices-editor .hass=${this.hass} .config=${this._config} @config-changed=${this._valueChanged}></intermediate-devices-editor>
+          <cascade-subpage-header @go-back=${this._goBack} page=${this._currentConfigPage}> </cascade-subpage-header>
+          <cascade-intermediate-devices-editor .hass=${this.hass} .config=${this._config} @config-changed=${this._valueChanged}></cascade-intermediate-devices-editor>
         `;
       }
 
@@ -156,7 +156,7 @@ export class PowerFlowCardCascadeEditor extends LitElement implements LovelaceCa
           : data.entities[currentPage as keyof typeof data.entities];
 
       return html`
-        <subpage-header @go-back=${this._goBack} page=${this._currentConfigPage}> </subpage-header>
+        <cascade-subpage-header @go-back=${this._goBack} page=${this._currentConfigPage}> </cascade-subpage-header>
         <ha-form
           .hass=${this.hass}
           .data=${dataForForm}
@@ -176,13 +176,13 @@ export class PowerFlowCardCascadeEditor extends LitElement implements LovelaceCa
       };
       const icon = getIconToUse();
       return html`
-        <link-subpage
+        <cascade-link-subpage
           path=${page}
           header="${localize(`editor.${page}`)}"
           @open-sub-element-editor=${() => this._editDetailElement(page)}
           icon=${icon}
         >
-        </link-subpage>
+        </cascade-link-subpage>
       `;
     };
 

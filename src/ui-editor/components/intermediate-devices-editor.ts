@@ -6,7 +6,7 @@ import localize from "@/localize/localize";
 import { PowerFlowCardCascadeConfig } from "@/power-flow-card-cascade-config";
 import "./intermediate-row-editor";
 
-@customElement("intermediate-devices-editor")
+@customElement("cascade-intermediate-devices-editor")
 export class IntermediateDevicesEditor extends LitElement {
   public hass!: HomeAssistant;
   @property({ attribute: false }) public config!: PowerFlowCardCascadeConfig;
@@ -21,13 +21,13 @@ export class IntermediateDevicesEditor extends LitElement {
     this._configEntities = (this.config.entities.intermediate || []) as LovelaceRowConfig[];
 
     return html`
-      <intermediate-row-editor
+      <cascade-intermediate-row-editor
         .hass=${this.hass}
         .config=${this.config}
         .entities=${this._configEntities}
         @entities-changed=${this._entitiesChanged}
         style="width: 100%;"
-      ></intermediate-row-editor>
+      ></cascade-intermediate-row-editor>
     `;
   }
 
@@ -66,6 +66,6 @@ export class IntermediateDevicesEditor extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "intermediate-devices-editor": IntermediateDevicesEditor;
+    "cascade-intermediate-devices-editor": IntermediateDevicesEditor;
   }
 }

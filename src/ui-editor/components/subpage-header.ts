@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-@customElement("subpage-header")
+@customElement("cascade-subpage-header")
 export class SubpageHeader extends LitElement {
   public hass!: HomeAssistant;
   @property({ attribute: false }) public config!: PowerFlowCardCascadeConfig;
@@ -52,6 +52,6 @@ export class SubpageHeader extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "subpage-header": SubpageHeader;
+    "cascade-subpage-header": SubpageHeader;
   }
 }
