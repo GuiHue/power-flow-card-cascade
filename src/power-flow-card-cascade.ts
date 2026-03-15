@@ -93,12 +93,6 @@ export class PowerFlowCardCascade extends LitElement {
     if ((config.entities as any).individual1 || (config.entities as any).individual2) {
       throw new Error("You are using an outdated configuration. Please update your configuration to the latest version.");
     }
-    if (
-      !config.entities ||
-      (!config.entities?.battery?.entity && !(config.entities?.grid as any)?.house?.entity && !config.entities?.solar?.entity)
-    ) {
-      throw new Error("At least one entity for battery, grid or solar must be defined");
-    }
     this._config = {
       ...config,
       kw_decimals: coerceNumber(config.kw_decimals, defaultValues.kilowattDecimals),
@@ -177,6 +171,17 @@ export class PowerFlowCardCascade extends LitElement {
     }
 
     const { entities } = this._config;
+
+    if (
+      !entities ||
+      (!entities.battery?.entity && !(entities.grid as any)?.house?.entity && !entities.solar?.entity)
+    ) {
+      return html`<ha-card>
+        <div style="padding: 16px; text-align: center;">
+          Configure at least one entity for battery, grid, or solar to get started.
+        </div>
+      </ha-card>`;
+    }
 
     this.style.setProperty("--clickable-cursor", this._config.clickable_entities ? "pointer" : "default");
 
